@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ServiceStack.Data;
 using Spotify.Web.Models;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,12 @@ namespace Spotify.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IDbConnectionFactory _factory;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IDbConnectionFactory factory)
         {
             _logger = logger;
+            _factory = factory;
         }
 
         public IActionResult Index()
