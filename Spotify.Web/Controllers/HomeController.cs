@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SpotifyEnhancer.Models;
+using Spotify.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SpotifyEnhancer.Controllers
+namespace Spotify.Web.Controllers
 {
     public class HomeController : Controller
     {

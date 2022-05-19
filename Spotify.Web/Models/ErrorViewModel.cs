@@ -1,6 +1,6 @@
 using System;
 
-namespace SpotifyEnhancer.Models
+namespace Spotify.Web.Models
 {
     public class ErrorViewModel
     {
