@@ -10,26 +10,25 @@ using System.Threading.Tasks;
 
 namespace Spotify.Web.Controllers
 {
-    public class HomeController : Controller
+    public class AuthController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IDbConnectionFactory _factory;
 
-        public HomeController(ILogger<HomeController> logger, IDbConnectionFactory factory)
+        public AuthController(ILogger<HomeController> logger, IDbConnectionFactory factory)
         {
             _logger = logger;
             _factory = factory;
         }
 
-        public IActionResult Index()
+        public IActionResult Login()
         {
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Logout()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
     }
 }
