@@ -1,36 +1,68 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
+using Spotify.Library;
+using Spotify.Library.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Spotify.Web
 {
     public class Startup
     {
+        public IConfiguration _configuration { get; }
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
 
-            services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(Configuration["ConnectionStrings:SteamRoller"], SqlServerDialect.Provider));
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.Cookie.Name = _configuration["Auth:Cookie:Name"];
+
+                    options.LoginPath = "/Auth/Login";
+                    options.AccessDeniedPath = "/Auth/Denied";
+
+                    options.Cookie.MaxAge = TimeSpan.FromHours(2);
+
+                    options.SlidingExpiration = true;
+                    options.ExpireTimeSpan = TimeSpan.FromHours(2);
+                    options.Cookie.SameSite = SameSiteMode.Lax;
+                });
+
+
+            services.AddAuthorization();
+
+            services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(_configuration["ConnectionStrings:SteamRoller"], SqlServerDialect.Provider));
+
+            services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
+            services.AddSingleton<IServiceClient>(new JsonServiceClient
+            {
+                BaseUri = _configuration.Get<string>("Spotify:ApiUri")
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -40,7 +72,6 @@ namespace Spotify.Web
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
@@ -48,6 +79,7 @@ namespace Spotify.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
