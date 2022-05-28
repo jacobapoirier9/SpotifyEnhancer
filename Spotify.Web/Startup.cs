@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
 using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
@@ -25,7 +28,9 @@ namespace Spotify.Web
 {
     public class Startup
     {
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         public IConfiguration _configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -34,6 +39,7 @@ namespace Spotify.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            _logger.Debug("Configuring Services..");
             services.AddControllersWithViews();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -65,6 +71,9 @@ namespace Spotify.Web
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            _logger.Debug("Configuring application..");
+            _logger.Debug("Environment: {Environment}", env.EnvironmentName);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -74,6 +83,7 @@ namespace Spotify.Web
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -88,6 +98,8 @@ namespace Spotify.Web
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            _logger.Debug("URLs: {URLs}", app.ApplicationServices.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.JoinToString(", "));
         }
     }
 }
