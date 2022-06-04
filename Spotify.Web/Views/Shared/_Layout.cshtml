@@ -38,15 +38,18 @@
     </div>
 
     <footer class="border-top text-muted">
-        <div class="container">
-            &copy; 2022 - Spotify.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <div class="container" style="position: fixed; bottom: 0; left: 0;">
+            <div>
+                <h1>Here</h1>
+            </div>
         </div>
-
-        <div style
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(spotify.init)
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

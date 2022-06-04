@@ -37,12 +37,16 @@ namespace Spotify.Web.Controllers
         public IActionResult Index()
         {
             SetupApi();
-
             var categories = _spotify.GetAll(new SpotifyFindCategories(), response => response.Categories);
-
             var grid = Helpers.ToArrayGrid(categories, 4);
-
             return View(grid);
+        }
+
+        [HttpGet]
+        public IActionResult PlaybackState()
+        {
+            var playbackState = _spotify.Get(new SpotifyGetPlaybackState());
+            return Json(playbackState);
         }
     }
 }

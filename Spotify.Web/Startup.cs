@@ -50,10 +50,10 @@ namespace Spotify.Web
                     options.LoginPath = "/Auth/Login";
                     options.AccessDeniedPath = "/Auth/Denied";
 
-                    options.Cookie.MaxAge = TimeSpan.FromHours(2);
+                    options.Cookie.MaxAge = TimeSpan.FromHours(1);
 
                     options.SlidingExpiration = true;
-                    options.ExpireTimeSpan = TimeSpan.FromHours(2);
+                    options.ExpireTimeSpan = TimeSpan.FromHours(1);
                     options.Cookie.SameSite = SameSiteMode.Lax;
                 });
 
