@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using NLog;
@@ -39,8 +40,8 @@ namespace Spotify.Web.Controllers
         {
             if (code is null)
             {
-                var response = SpotifyUris.LoginUrl(_configuration);
-                return Redirect(response);
+                _logger.Debug("Need to redirect request to Spotify for authentication.");
+                return Redirect(SpotifyUris.LoginUrl(_configuration));
             }
             else
             {
@@ -48,21 +49,13 @@ namespace Spotify.Web.Controllers
                 var user = _spotify.Get(new SpotifyGetCurrentlySignedInUser(), token.AccessToken);
 
                 var claims = new List<Claim>();
-                claims.AddClaim("SpotifyToken", token);
-                claims.AddClaim("SpotifyUser", user);
+                claims.AddClaim(nameof(SpotifyToken), token);
+                claims.AddClaim(nameof(SpotifyUser), user);
 
                 var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
                 HttpContext.SignInAsync(claimsPrincipal);
 
-                if (_configuration.Get<bool>("DeepLogging"))
-                {
-                    var builder = new StringBuilder();
-                    builder.AppendLine("Registering claims..");
-                    claims.Each(claim => builder.AppendLine($"Type: {claim.Type}, Value: {claim.Value}"));
-
-                    _logger.Trace(builder.ToString());
-                }
-
+                _logger.Debug("Spotify user signed in is {Username}", user.DisplayName);
                 return RedirectToAction("Index", "Spotify");
             }
         }

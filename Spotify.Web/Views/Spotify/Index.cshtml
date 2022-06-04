@@ -1,6 +1,17 @@
-﻿@{
-    ViewData["Title"] = "Welcome!";
+﻿@model List<SpotifyCategory>
+@{
+    ViewData["Title"] = "Categories";
 }
 
 
-<h1>Hello</h1>
+
+<div class="form-inline">
+    @foreach (var c in Model)
+    {
+        <div class="col-3" style="border: 1px solid black">
+            <h4>@c.Name</h4>
+            @{ var image = c.Icons.First(); }
+            <img src="@image.Url" height="@(image.Height / 2)" width="@(image.Width / 2)"/>
+        </div>
+    }
+</div>

@@ -67,7 +67,47 @@ namespace Spotify.Web
                 return value.FromJson<T>();
             }
         }
-       
+
+        public static ArrayGrid<T> ToArrayGrid<T>(this IEnumerable<T> items, int numberOfCols)
+        {
+            var count = items.Count();
+            var numberOfRows = count / numberOfCols;
+
+            if (count > numberOfRows * numberOfCols)
+                numberOfRows++;
+
+            var e = items.GetEnumerator();
+            var grid = new T?[numberOfRows, numberOfCols];
+            for (var r = 0; r < numberOfRows; r++)
+            {
+                for (var c = 0; c < numberOfCols; c++)
+                {
+                    grid[r, c] = e.MoveNext() ? e.Current : default(T);
+                }
+            }
+
+            return new ArrayGrid<T>()
+            {
+                Grid = grid,
+                List = items.ToList(),
+                NumberOfCols = numberOfCols,
+                NumberOfRows = numberOfRows,
+                Length = count
+            };
+        }
+
+        public class ArrayGrid<T>
+        {
+            public T?[,] Grid { get; set; }
+
+            public int NumberOfRows { get; set; }
+
+            public int NumberOfCols { get; set; }
+
+            public List<T> List { get; set; }
+
+            public int Length { get; init; }
+        }
     }
 
     public static class SpotifyServiceClientExtensions

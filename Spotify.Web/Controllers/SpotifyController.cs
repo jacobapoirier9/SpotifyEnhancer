@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
 using ServiceStack;
 using Spotify.Library.Core;
 using Spotify.Library.Services;
@@ -15,34 +16,33 @@ namespace Spotify.Web.Controllers
     [Authorize]
     public class SpotifyController : Controller
     {
-        private readonly ISpotifyTokenService _tokens;
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IServiceClient _spotify;
-        public SpotifyController(ISpotifyTokenService tokens, IServiceClient spotify)
+        public SpotifyController(IServiceClient spotify)
         {
-            _tokens = tokens;
             _spotify = spotify;
         }
 
-        public void SetupApi()
+        private void SetupApi()
         {
+            var user = this.Claim<SpotifyUser>();
             var token = this.Claim<SpotifyToken>();
+
             _spotify.BearerToken = token.AccessToken;
+
+            _logger.Debug("About to use Spotify API for user {Username}", user.DisplayName);
         }
 
-
+        [HttpGet]
         public IActionResult Index()
         {
             SetupApi();
-            var user = this.Claim<SpotifyUser>();
 
             var categories = _spotify.GetAll(new SpotifyFindCategories(), response => response.Categories);
 
-            return View();
+            var grid = Helpers.ToArrayGrid(categories, 4);
+
+            return View(categories);
         }
-
-
-
-
-
     }
 }
