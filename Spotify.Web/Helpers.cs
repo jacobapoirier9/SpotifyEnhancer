@@ -77,7 +77,7 @@ namespace Spotify.Web
                 numberOfRows++;
 
             var e = items.GetEnumerator();
-            var grid = new T?[numberOfRows, numberOfCols];
+            var grid = new T[numberOfRows, numberOfCols];
             for (var r = 0; r < numberOfRows; r++)
             {
                 for (var c = 0; c < numberOfCols; c++)
@@ -95,19 +95,37 @@ namespace Spotify.Web
                 Length = count
             };
         }
+    }
 
-        public class ArrayGrid<T>
+    public class ArrayGrid<T>
+    {
+        public T[][] GridForDebugging
         {
-            public T?[,] Grid { get; set; }
+            get
+            {
+                var e = List.GetEnumerator();
+                var toReturn = new T[NumberOfRows][];
+                for (var r = 0; r < NumberOfRows; r++)
+                {
+                    toReturn[r] = new T[NumberOfCols];
+                    for (var c = 0; c < NumberOfCols; c++)
+                    {
+                        toReturn[r][c] = e.MoveNext() ? e.Current : default(T);
+                    }
+                }
 
-            public int NumberOfRows { get; set; }
-
-            public int NumberOfCols { get; set; }
-
-            public List<T> List { get; set; }
-
-            public int Length { get; init; }
+                return toReturn;
+            }
         }
+        public T[,] Grid { get; set; }
+
+        public int NumberOfRows { get; set; }
+
+        public int NumberOfCols { get; set; }
+
+        public List<T> List { get; set; }
+
+        public int Length { get; init; }
     }
 
     public static class SpotifyServiceClientExtensions

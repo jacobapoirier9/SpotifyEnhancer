@@ -42,7 +42,7 @@ namespace Spotify.Web.Controllers
 
             var grid = Helpers.ToArrayGrid(categories, 4);
 
-            return View(categories);
+            return View(grid);
         }
     }
 }

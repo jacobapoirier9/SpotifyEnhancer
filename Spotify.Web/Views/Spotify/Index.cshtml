@@ -1,17 +1,36 @@
-﻿@model List<SpotifyCategory>
+﻿@model Spotify.Web.ArrayGrid<SpotifyCategory>
 @{
     ViewData["Title"] = "Categories";
 }
 
 
 
-<div class="form-inline">
-    @foreach (var c in Model)
+<div>
+
+    @for (var r = 0; r < Model.NumberOfRows; r++)
     {
-        <div class="col-3" style="border: 1px solid black">
-            <h4>@c.Name</h4>
-            @{ var image = c.Icons.First(); }
-            <img src="@image.Url" height="@(image.Height / 2)" width="@(image.Width / 2)"/>
+        <div class="row">
+
+            @for (var c = 0; c < Model.NumberOfCols; c++)
+            {
+
+                var current = Model.Grid[r, c];
+                if (current is null)
+                {
+                    <div class="col-3"></div>
+                }
+                else
+                {
+                    var image = current.Icons.First();
+
+                    <div class="col-3" style="border: 1px solid black">
+                        <h4>@current.Name</h4>
+                        <img src="@image.Url" style="width: 100%; height: 80%;" />
+                    </div>
+                }
+
+            }
+
         </div>
     }
 </div>
