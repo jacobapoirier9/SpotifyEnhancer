@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Spotify.Web
 {
-    internal static class Helpers
+    public static class Helpers
     {
         public static object To(this IConvertible item, Type type)
         {
@@ -95,6 +96,129 @@ namespace Spotify.Web
                 Length = count
             };
         }
+
+
+
+
+        /// <summary>
+        /// Repeats a string a number of times
+        /// </summary>
+        public static string Repeat(this string str, int count)
+        {
+            var toReturn = "";
+            for (var i = 0; i < count; i++)
+            {
+                toReturn += str;
+            }
+            return toReturn;
+        }
+
+        /// <summary>
+        /// Builds a minified json string
+        /// </summary>
+        public static string MinifyJson(string json)
+        {
+            var builder = new StringBuilder();
+            var isInQuotes = false;
+            var lastChar = char.MinValue;
+
+            foreach (var letter in json)
+            {
+                if (isInQuotes)
+                {
+                    switch (letter)
+                    {
+                        case '"':
+                            builder.Append(letter);
+                            isInQuotes = false;
+                            break;
+                        default:
+                            builder.Append(letter);
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (letter)
+                    {
+                        case ' ':
+                        case '\n':
+                        case '\r':
+                        case '\t':
+                            break;
+
+                        case '"':
+
+                            if (lastChar == '\\')
+                            {
+
+                            }
+                            else
+                            {
+                                builder.Append(letter);
+                                isInQuotes = true;
+                            }
+
+                            break;
+                        default:
+                            builder.Append(letter);
+                            break;
+                    }
+                }
+
+                lastChar = letter;
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Builds a nicely formatted json string
+        /// </summary>
+        public static string PrettyPrintJson(string json)
+        {
+            json = MinifyJson(json);
+
+            var builder = new StringBuilder();
+            var tabIndex = 0;
+            var toRepeat = "\t";
+
+            foreach (var letter in json)
+            {
+                switch (letter)
+                {
+                    case '{':
+                    case '[':
+                        tabIndex++;
+                        builder.Append(letter);
+                        builder.Append(Environment.NewLine + toRepeat.Repeat(tabIndex));
+                        break;
+
+                    case '}':
+                    case ']':
+                        tabIndex--;
+                        builder.Append(Environment.NewLine + toRepeat.Repeat(tabIndex));
+                        builder.Append(letter);
+                        break;
+
+                    case ':':
+                        builder.Append(letter + " ");
+                        break;
+
+                    case ',':
+                        builder.Append(letter);
+                        builder.Append(Environment.NewLine + toRepeat.Repeat(tabIndex));
+                        break;
+
+                    default:
+                        builder.Append(letter);
+                        break;
+                }
+            }
+
+            return builder.ToString();
+        }
+
     }
 
     public class ArrayGrid<T>

@@ -1,8 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using ServiceStack;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Spotify.Library.Core
 {
+    [Route("/tracks/{TrackId}")]
+    public class SpotifyGetTrack : IReturn<SpotifyTrack>, IGet
+    { 
+        public string TrackId { get; set; }
+    }
+
     public class SpotifyTrack : SpotifyObject
     {
         [DataMember(Name = "artists")]

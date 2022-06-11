@@ -57,7 +57,7 @@ namespace Spotify.Web
 
                     options.Cookie.MaxAge = TimeSpan.FromHours(1);
 
-                    options.SlidingExpiration = true;
+                    //options.SlidingExpiration = true;
                     options.ExpireTimeSpan = TimeSpan.FromHours(1);
                     options.Cookie.SameSite = SameSiteMode.Lax;
                 });

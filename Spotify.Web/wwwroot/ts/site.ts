@@ -1,7 +1,6 @@
 ﻿var config = {
-    loadCurrentlyPlayingInterval: 50_000
+    loadCurrentlyPlayingInterval: 60_000
 }
-
 
 var helpers = {
     interval: {
@@ -14,6 +13,10 @@ var helpers = {
 
 var spotify = {
 
+    clickCurrentlyPlaying(id: string) {
+        window.location.assign("/Spotify/TrackView?trackId=" + id)
+    },
+
     loadCurrentlyPlaying() {
         $.ajax({
             url: "/Spotify/PlaybackState",
@@ -22,15 +25,21 @@ var spotify = {
 
                 var $currentlyPlaying = $("#currently-playing")
 
-                if ($currentlyPlaying.attr("data-uri") === response.item.uri) {
+                if (response === null) {
+                    $currentlyPlaying.children("img").remove() 
+                }
+                else if ($currentlyPlaying.attr("data-uri") === response.item.uri) {
                     console.debug("Currently playing is already set on the webpage")
                 } else {
                     console.debug("Need to set currently playing on the webpage")
                     $currentlyPlaying.attr("data-uri", response.item.uri)
-                        .children("img")
+                        .append("<img>").children("img")
                         .attr("src", response.item.album.images[1].url)
                         .attr("alt", response.item.name)
                         .attr("title", response.item.name)
+                        .attr("width", 100)
+                        .attr("height", 100)
+                        .click(() => spotify.clickCurrentlyPlaying(response.item.id))
                 }
             },
             error: (error) => {
@@ -39,6 +48,13 @@ var spotify = {
         })
     },
 
+    page: {
+        playlistBuilder: {
+            init() {
+                spotify.page.track.tabs.init()
+            }
+        }
+    },
 
     init() {
         helpers.interval.set(spotify.loadCurrentlyPlaying, config.loadCurrentlyPlayingInterval)

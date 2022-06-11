@@ -8,6 +8,7 @@ using ServiceStack.OrmLite;
 using Spotify.Library.Core;
 using Spotify.Library.Services;
 using Spotify.Web.Database;
+using Spotify.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace Spotify.Web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View("PlaylistBuilder");
         }
 
 
@@ -40,11 +41,11 @@ namespace Spotify.Web.Controllers
 
         #region StreamRoller Database Access
         [HttpGet]
-        public IActionResult GetGroups()
+        public List<Group> GetUserGroups(string username)
         {
             using (var db = _factory.OpenDbConnection())
             {
-                var username = this.Claim<string>(Names.Username);
+                //var username = this.Claim<string>(Names.Username);
                 var query = db.From<Group>()
                     .Where(g => g.Username == username);
 
@@ -52,7 +53,7 @@ namespace Spotify.Web.Controllers
 
                 _logger.Debug("Returning {Count} groups for user {User}", groups.Count, username);
 
-                return Json(groups);
+                return groups;
             }
         }
         #endregion
@@ -95,6 +96,39 @@ namespace Spotify.Web.Controllers
             var playbackState = _spotify.Get(new SpotifyGetPlaybackState());
             return Json(playbackState);
         }
+
+        public IActionResult TrackView(string trackId)
+        {
+            return TrackView2(trackId);
+            SetupApi(out var username);
+
+            var track = _spotify.Get(new SpotifyGetTrack { TrackId = trackId });
+            var groups = GetUserGroups(username);
+
+            using (var db = _factory.OpenDbConnection())
+            {
+                var query = db.From<GroupRelationship>()
+                    .Where(gr => gr.ItemType == "track" && gr.ItemId == trackId)
+                    .Select(gr => gr.GroupId);
+
+                var memberedGroupIds = db.Select<int>(query);
+
+                return View(new TrackViewModel
+                {
+                    Track = track,
+                    Groups = groups,
+                    MemberedGroupIds = memberedGroupIds
+                });
+            }
+        }
+
+        public IActionResult TrackView2(string trackId)
+        {
+            SetupApi();
+            var track = _spotify.Get(new SpotifyGetTrack { TrackId = trackId });
+            return View("TrackView", track);
+        }
         #endregion
     }
+   
 }
