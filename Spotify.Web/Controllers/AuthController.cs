@@ -49,8 +49,8 @@ namespace Spotify.Web.Controllers
                 var user = _spotify.Get(new SpotifyGetCurrentlySignedInUser(), token.AccessToken);
 
                 var claims = new List<Claim>();
-                claims.AddClaim(nameof(SpotifyToken), token);
-                claims.AddClaim(nameof(SpotifyUser), user);
+                claims.AddClaim(Names.Username, user.DisplayName);
+                claims.AddClaim(Names.AccessToken, token.AccessToken);
 
                 var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
                 HttpContext.SignInAsync(claimsPrincipal);

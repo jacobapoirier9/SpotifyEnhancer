@@ -37,6 +37,8 @@ namespace Spotify.Web
         }
 
 
+
+
         public void ConfigureServices(IServiceCollection services)
         {
             _logger.Debug("Configuring Services..");
@@ -61,6 +63,13 @@ namespace Spotify.Web
             services.AddAuthorization();
 
             services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(_configuration["ConnectionStrings:SteamRoller"], SqlServerDialect.Provider));
+            if (_configuration.GetValue<bool>("DeepLogging:SQL"))
+            {
+                OrmLiteConfig.BeforeExecFilter = command =>
+                {
+                    _logger.Trace("Running SQL: {NewLine} {SQL}", Environment.NewLine, command.CommandText);
+                };
+            }
 
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
             services.AddSingleton<IServiceClient>(new JsonServiceClient
