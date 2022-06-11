@@ -14,11 +14,14 @@ using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using Spotify.Library;
+using Spotify.Library.Core;
 using Spotify.Library.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -74,8 +77,47 @@ namespace Spotify.Web
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {
-                BaseUri = _configuration.Get<string>("Spotify:ApiUri")
+                BaseUri = _configuration.GetValue<string>("Spotify:ApiUri"),
+
+                ResponseFilter = _configuration.GetValue<bool>("DeepLogging:API") ? LogResponse : null,
+
+                ExceptionFilter = LogErrorResponse
             });
+        }
+        
+        private void LogResponse(HttpWebResponse response)
+        {
+            _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
+
+            //// This option is only needed when trying to debug the exact response
+            //using (var stream = response.GetResponseStream())
+            //using (var reader = new StreamReader(stream))
+            //{
+            //    _logger.Trace(reader.ReadToEnd());
+            //}
+        }
+
+        private object LogErrorResponse(WebException exception, WebResponse response, string str, Type type)
+        {
+            LogResponse((HttpWebResponse)response);
+            _logger.Error("HTTP: {Error}", exception.Message);
+
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream))
+            {
+                var json = reader.ReadToEnd();
+
+                if (json is null) // An error occurred before reaching the endpoint (HTTP Error)
+                {
+                    throw exception;
+                }
+                else // An error occurred after reaching the endpoint (Spotify Error)
+                {
+                    var error = json.FromJson<ErrorWrapper>();
+                    _logger.Error("Spotify: {Error}", error.Error.Message);
+                    throw new Exception(error.Error.Message);
+                }
+            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

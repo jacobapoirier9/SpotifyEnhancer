@@ -29,16 +29,17 @@ namespace Spotify.Web.Controllers
             _factory = factory;
         }
 
-        private void SetupApi()
+        public IActionResult Index()
         {
-            var username = this.Claim<string>(Names.Username);
-            var token = this.Claim<string>(Names.AccessToken);
-
-            _spotify.BearerToken = token;
-
-            _logger.Debug("About to use Spotify API for user {Username}", username);
+            return Categories();
+            return View();
         }
 
+
+
+
+
+        #region StreamRoller Database Access
         [HttpGet]
         public IActionResult GetGroups()
         {
@@ -55,9 +56,27 @@ namespace Spotify.Web.Controllers
                 return Json(groups);
             }
         }
+        #endregion
 
+
+
+
+
+
+        #region Spotify API Access
+        private void SetupApi()
+        {
+            var username = this.Claim<string>(Names.Username);
+            var token = this.Claim<string>(Names.AccessToken);
+
+            _spotify.BearerToken = token;
+
+            _logger.Trace("{Username} is using the API with token {Token}", username, token);
+        }
+
+        [Obsolete("Remove the Categories action method")]
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Categories()
         {
             SetupApi();
 
@@ -74,5 +93,6 @@ namespace Spotify.Web.Controllers
             var playbackState = _spotify.Get(new SpotifyGetPlaybackState());
             return Json(playbackState);
         }
+        #endregion
     }
 }
