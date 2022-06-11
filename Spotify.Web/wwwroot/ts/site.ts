@@ -60,6 +60,12 @@ var spotify = {
         track: {
             init() {
                 console.debug(helpers.getJson("#relationship-json"))
+
+
+                var $relationshipGrid = $("#relationship-grid").jqGrid({
+                    
+                })
+
             }
         }
     },

@@ -53,6 +53,7 @@ var spotify = {
         track: {
             init: function () {
                 console.debug(helpers.getJson("#relationship-json"));
+                var $relationshipGrid = $("#relationship-grid").jqGrid({});
             }
         }
     },

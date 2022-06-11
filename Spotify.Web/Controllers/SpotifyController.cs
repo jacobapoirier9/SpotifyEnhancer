@@ -102,6 +102,8 @@ namespace Spotify.Web.Controllers
             SetupApi();
             var track = _spotify.Get(new SpotifyGetTrack { TrackId = trackId });
 
+            JakeLoadItemIntoDatabase(track);
+
             using (var db = _factory.OpenDbConnection())
             {
                 var itemIds = new List<string>() { track.Id, track.Album.Id };
@@ -121,6 +123,54 @@ namespace Spotify.Web.Controllers
                 });
             }
         }
+
+
+
+
+        private void JakeLoadItemIntoDatabase(SpotifyTrack track)
+        {
+            var itemIds = new List<string>() { track.Id, track.Album.Id };
+            itemIds.AddRange(track.Artists.Select(a => a.Id));
+            itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
+
+            var groupIds = new List<int>() { 1, 2, 3, 4 };
+
+            var toInsert = new List<GroupRelationship>();
+
+            toInsert.AddRange(groupIds.Select(groupId => new GroupRelationship 
+            { 
+                GroupId = groupId,
+                Username = "jacobapoirier9",
+                ItemId = track.Id,
+                ItemType = "track"
+            }));
+
+            toInsert.AddRange(groupIds.Select(groupId => new GroupRelationship
+            {
+                GroupId = groupId,
+                Username = "jacobapoirier9",
+                ItemId = track.Album.Id,
+                ItemType = "album"
+            }));
+
+            foreach (var artist in track.Artists.Concat(track.Album.Artists))
+            {
+                toInsert.AddRange(groupIds.Select(groupId => new GroupRelationship
+                {
+                    GroupId = groupId,
+                    Username = "jacobapoirier9",
+                    ItemId = artist.Id,
+                    ItemType = "artist"
+                }));
+            }
+
+            using (var db = _factory.OpenDbConnection())
+            {
+                db.InsertAll(toInsert);
+            }
+        }
+
+
         #endregion
     }
 }
