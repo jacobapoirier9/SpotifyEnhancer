@@ -99,36 +99,28 @@ namespace Spotify.Web.Controllers
 
         public IActionResult TrackView(string trackId)
         {
-            return TrackView2(trackId);
-            SetupApi(out var username);
-
+            SetupApi();
             var track = _spotify.Get(new SpotifyGetTrack { TrackId = trackId });
-            var groups = GetUserGroups(username);
 
             using (var db = _factory.OpenDbConnection())
             {
-                var query = db.From<GroupRelationship>()
-                    .Where(gr => gr.ItemType == "track" && gr.ItemId == trackId)
-                    .Select(gr => gr.GroupId);
+                var itemIds = new List<string>() { track.Id, track.Album.Id };
+                itemIds.AddRange(track.Artists.Select(a => a.Id));
+                itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
 
-                var memberedGroupIds = db.Select<int>(query);
+                var query = db.From<GroupRelationship>()
+                    .Join<Group>((gr, g) => gr.GroupId == g.GroupId)
+                    .Where<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
+
+                var results = db.Select<object>(query);
 
                 return View(new TrackViewModel
                 {
                     Track = track,
-                    Groups = groups,
-                    MemberedGroupIds = memberedGroupIds
+                    GridData = results
                 });
             }
         }
-
-        public IActionResult TrackView2(string trackId)
-        {
-            SetupApi();
-            var track = _spotify.Get(new SpotifyGetTrack { TrackId = trackId });
-            return View("TrackView", track);
-        }
         #endregion
     }
-   
 }

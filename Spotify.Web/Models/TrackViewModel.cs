@@ -11,8 +11,6 @@ namespace Spotify.Web.Models
     {
         public SpotifyTrack Track { get; set; }
 
-        public List<Group> Groups { get; set; }
-
-        public List<int> MemberedGroupIds { get; set; }
+        public object GridData { get; set; }
     }
 }

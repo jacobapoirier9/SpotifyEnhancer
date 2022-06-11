@@ -7,6 +7,9 @@ var helpers = {
             callback();
             setInterval(callback, interval);
         }
+    },
+    getJson: function (selector) {
+        return JSON.parse($(selector).val());
     }
 };
 var spotify = {
@@ -43,48 +46,13 @@ var spotify = {
         });
     },
     page: {
-        track: {
-            tabs: {
-                init: function () {
-                    // Each tab link will call this function, determine if the data has alread been loaded, and either load the data or just show the already loaded content
-                    $("a[data-toggle='tab']").click(function (click) {
-                        var $target = $(click.target);
-                        //$("li").removeClass("active")
-                        //$target.parent("li").addClass("active")
-                        if ($target.parent("li").hasClass("disabled")) {
-                            click.preventDefault();
-                            return false;
-                        }
-                        else {
-                            var $pane = $($target.attr("href"));
-                            var result = $pane.attr("data-loaded");
-                            if (result !== "true") {
-                                switch ($pane.attr("id")) {
-                                    case "tab-content-relationships":
-                                        //maint.tabs.relationship.init($pane)
-                                        break;
-                                    case "tab-content-windows":
-                                        //maint.tabs.windows.init($pane)
-                                        break;
-                                    case "tab-content-tidal":
-                                        //maint.tabs.tidal.init($pane)
-                                        break;
-                                }
-                                $pane.attr("data-loaded", "true");
-                                //setTimeout(() => $(window).trigger("resize"), 300)
-                            }
-                            else {
-                                //setTimeout(() => $(window).trigger("resize"), 25)
-                            }
-                            return true;
-                        }
-                    });
-                }
-            }
-        },
         playlistBuilder: {
             init: function () {
-                spotify.page.track.tabs.init();
+            }
+        },
+        track: {
+            init: function () {
+                console.debug(helpers.getJson("#relationship-json"));
             }
         }
     },

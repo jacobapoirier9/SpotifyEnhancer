@@ -8,6 +8,10 @@ var helpers = {
             callback()
             setInterval(callback, interval)
         }
+    },
+
+    getJson(selector: string) {
+        return JSON.parse($(selector).val())
     }
 }
 
@@ -51,7 +55,11 @@ var spotify = {
     page: {
         playlistBuilder: {
             init() {
-                spotify.page.track.tabs.init()
+            }
+        },
+        track: {
+            init() {
+                console.debug(helpers.getJson("#relationship-json"))
             }
         }
     },
