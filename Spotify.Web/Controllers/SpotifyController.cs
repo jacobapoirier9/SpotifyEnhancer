@@ -31,7 +31,6 @@ namespace Spotify.Web.Controllers
 
         public IActionResult Index()
         {
-            return Categories();
             return View();
         }
 
@@ -64,9 +63,10 @@ namespace Spotify.Web.Controllers
 
 
         #region Spotify API Access
-        private void SetupApi()
+        private void SetupApi() => SetupApi(out _);
+        private void SetupApi(out string username)
         {
-            var username = this.Claim<string>(Names.Username);
+            username = this.Claim<string>(Names.Username);
             var token = this.Claim<string>(Names.AccessToken);
 
             _spotify.BearerToken = token;
@@ -90,6 +90,8 @@ namespace Spotify.Web.Controllers
         [HttpGet]
         public IActionResult PlaybackState()
         {
+            SetupApi(out var username);
+
             var playbackState = _spotify.Get(new SpotifyGetPlaybackState());
             return Json(playbackState);
         }
