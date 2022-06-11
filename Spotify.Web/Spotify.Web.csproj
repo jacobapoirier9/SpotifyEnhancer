@@ -6,7 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\ts\site.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.4" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.7.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="NLog" Version="5.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="ServiceStack" Version="6.1.0" />
@@ -16,6 +24,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spotify.Library\Spotify.Library.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\ts\site.ts" />
   </ItemGroup>
 
 </Project>
