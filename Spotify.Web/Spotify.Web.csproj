@@ -30,4 +30,8 @@
     <TypeScriptCompile Include="wwwroot\ts\site.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\jqgrid\" />
+  </ItemGroup>
+
 </Project>

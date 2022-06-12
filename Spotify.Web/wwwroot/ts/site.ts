@@ -12,6 +12,32 @@ var helpers = {
 
     getJson(selector: string) {
         return JSON.parse($(selector).val())
+    },
+
+    createGridModel(options: JqGridOptions): JqGridOptions {
+        var defaults: JqGridOptions = {
+            mtype: "POST",
+            datatype: 'json',
+            emptyrecords: 'No records to display',
+            gridview: true,
+            loadonce: true,
+            rowNum: 50,
+            forceFit: true,
+            sortable: true,
+            sortorder: 'asc',
+            styleUI: 'Bootstrap',
+            viewrecords: true,
+            jsonReader: {
+                root: 'Rows',
+                page: 'Page',
+                total: 'Total',
+                records: 'Records',
+                repeatitems: false,
+            }
+        }
+
+        $.extend(defaults, options)
+        return defaults
     }
 }
 
@@ -58,15 +84,26 @@ var spotify = {
             }
         },
         track: {
+            
             init() {
                 console.debug(helpers.getJson("#relationship-json"))
 
-
-                var $relationshipGrid = $("#relationship-grid").jqGrid({
-                    
-                })
+                setTimeout(() => {
+                    var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel)
+                }, 1000)
 
             }
+        }
+    },
+
+    grid: {
+        groupRelationships: {
+            gridModel: helpers.createGridModel({
+                idPrefix: "rel_",
+                colModel: [
+                    { }
+                ]
+            }),
         }
     },
 
