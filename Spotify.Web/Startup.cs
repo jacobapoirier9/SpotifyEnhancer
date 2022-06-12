@@ -90,11 +90,14 @@ namespace Spotify.Web
             _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
 
             //// This option is only needed when trying to debug the exact response
-            //using (var stream = response.GetResponseStream())
-            //using (var reader = new StreamReader(stream))
-            //{
-            //    _logger.Trace(reader.ReadToEnd());
-            //}
+            if (_configuration.GetValue<bool>("DeepLogging:ReadApiStream"))
+            {
+                using (var stream = response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    _logger.Trace(reader.ReadToEnd());
+                }
+            }
         }
 
         private object LogErrorResponse(WebException exception, WebResponse response, string str, Type type)

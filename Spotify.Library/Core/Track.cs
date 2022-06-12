@@ -10,6 +10,13 @@ namespace Spotify.Library.Core
         public string TrackId { get; set; }
     }
 
+    [Route("/tracks")]
+    public class SpotifyFindTracks : IReturn<SpotifyTrackWrapper>, IGet
+    {
+        public List<string> Ids { get; set; }
+    }
+
+
     public class SpotifyTrack : SpotifyObject
     {
         [DataMember(Name = "artists")]
@@ -33,7 +40,11 @@ namespace Spotify.Library.Core
 
     public class SpotifyTrackWrapper
     {
-        [DataMember(Name = "track")]
-        public SpotifyTrack Track { get; set; }
+        // Not sure what this is for.. is there another end point that potentially will use this?
+        //[DataMember(Name = "track")]
+        //public SpotifyTrack Track { get; set; }
+
+        [DataMember(Name = "tracks")]
+        public List<SpotifyTrack> Tracks { get; set; }
     }
 }

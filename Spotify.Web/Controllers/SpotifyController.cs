@@ -100,6 +100,7 @@ namespace Spotify.Web.Controllers
         public IActionResult TrackView(string trackId)
         {
             SetupApi();
+
             var track = _spotify.Get(new SpotifyGetTrack { TrackId = trackId });
 
             JakeLoadItemIntoDatabase(track);
@@ -114,8 +115,8 @@ namespace Spotify.Web.Controllers
                     .Join<Group>((gr, g) => gr.GroupId == g.GroupId)
                     .Where<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
 
-                var results = db.Select<object>(query);
-
+                var results = db.Select<FullGroupRelationship>(query);
+               
                 return View(new TrackViewModel
                 {
                     Track = track,
