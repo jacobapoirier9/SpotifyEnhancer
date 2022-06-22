@@ -13,8 +13,7 @@ var helpers = {
     },
     createGridModel: function (options) {
         var defaults = {
-            mtype: "POST",
-            datatype: 'json',
+            datatype: 'local',
             emptyrecords: 'No records to display',
             gridview: true,
             loadonce: true,
@@ -79,6 +78,14 @@ var spotify = {
                 console.debug(helpers.getJson("#relationship-json"));
                 setTimeout(function () {
                     var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel);
+                    $relationshipGrid.setGridParam({ data: helpers.getJson("#relationship-json") });
+                    $.ajax({
+                        url: "/Spotify/GetGroupsForTrack",
+                        success: function (response) {
+                            console.debug("Success!", response);
+                        }
+                    });
+                    $relationshipGrid.trigger("reloadGrid");
                 }, 1000);
             }
         }
@@ -91,7 +98,7 @@ var spotify = {
                     { hidden: true, name: "ItemId" },
                     { hidden: true, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
-                    { name: "" }
+                    { name: "ItemType", label: "Type" }
                 ]
                 /*
                  * GroupId: 1

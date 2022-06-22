@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Spotify.Library.Core
 {
     [Route("/tracks/{TrackId}")]
-    public class SpotifyGetTrack : IReturn<Track>, IGet
+    public class GetTrack : IReturn<Track>, IGet
     { 
         public string TrackId { get; set; }
     }

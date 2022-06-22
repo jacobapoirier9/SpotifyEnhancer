@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,7 @@ using ServiceStack.OrmLite;
 using Spotify.Library;
 using Spotify.Library.Core;
 using Spotify.Library.Services;
+using Spotify.Web.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -25,6 +27,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Spotify.Web
@@ -74,6 +77,7 @@ namespace Spotify.Web
                 };
             }
 
+            services.AddSingleton<ICustomCache, CustomFileSystemCache>();
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {

@@ -16,8 +16,7 @@ var helpers = {
 
     createGridModel(options: JqGridOptions): JqGridOptions {
         var defaults: JqGridOptions = {
-            mtype: "POST",
-            datatype: 'json',
+            datatype: 'local',
             emptyrecords: 'No records to display',
             gridview: true,
             loadonce: true,
@@ -90,6 +89,16 @@ var spotify = {
 
                 setTimeout(() => {
                     var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel)
+                    $relationshipGrid.setGridParam({ data: helpers.getJson("#relationship-json") })
+
+                    $.ajax({
+                        url: "/Spotify/GetGroupsForTrack",
+                        success: (response) => {
+                            console.debug("Success!", response)
+                        }
+                    })
+
+                    $relationshipGrid.trigger("reloadGrid")
                 }, 1000)
 
             }
@@ -104,7 +113,7 @@ var spotify = {
                     { hidden: true, name: "ItemId" },
                     { hidden: true, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
-                    { name: ""}
+                    { name: "ItemType", label: "Type" }
                 ]
 
                 /*

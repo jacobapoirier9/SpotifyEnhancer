@@ -9,6 +9,7 @@ using Spotify.Library.Core;
 using Spotify.Library.Services;
 using Spotify.Web.Database;
 using Spotify.Web.Models;
+using Spotify.Web.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,24 +18,20 @@ using System.Threading.Tasks;
 
 namespace Spotify.Web.Controllers
 {
-    public class FindTracks
-    {
-        public string TrackId { get; set; }
-
-        public bool RecentlyPlayed { get; set; }
-    }
-    
     [Authorize]
     public class SpotifyController : Controller
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IServiceClient _spotify;
         private readonly IDbConnectionFactory _factory;
+        private readonly ICustomCache _cache;
 
-        public SpotifyController(IServiceClient spotify, IDbConnectionFactory factory)
+
+        public SpotifyController(IServiceClient spotify, IDbConnectionFactory factory, ICustomCache cache)
         {
             _spotify = spotify;
             _factory = factory;
+            _cache = cache;
         }
 
         public IActionResult Index()
@@ -69,10 +66,7 @@ namespace Spotify.Web.Controllers
         public IActionResult RecentlyPlayed()
         {
             SetupApi(out var username);
-            var recentlyPlayed = _spotify.Get(new GetRecentlyPlayed() { Limit = 50 });
-
-
-
+            var recentlyPlayed = _spotify.Get(new GetRecentlyPlayedTracks() { Limit = 50 });
             return Json(recentlyPlayed);
         }
         #endregion
@@ -118,11 +112,11 @@ namespace Spotify.Web.Controllers
 
         public IActionResult TrackView(string trackId)
         {
-            SetupApi();
+            SetupApi(out var username);
 
-            var track = _spotify.Get(new SpotifyGetTrack { TrackId = trackId });
+            var track = _spotify.Get(new GetTrack { TrackId = trackId });
 
-            JakeLoadItemIntoDatabase(track);
+            _cache.Save(username, track);
 
             using (var db = _factory.OpenDbConnection())
             {
@@ -135,12 +129,45 @@ namespace Spotify.Web.Controllers
                     .Where<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
 
                 var results = db.Select<FullGroupRelationship>(query);
-               
+
                 return View(new TrackViewModel
                 {
                     Track = track,
-                    GridData = results
+                    GridData = results.Select(r => new
+                    {
+                        r.GroupId,
+                        r.GroupName,
+                        r.ItemId,
+                        r.ItemType
+                    })
                 });
+            }
+        }
+
+
+        public IActionResult GetGroupsForTrack()
+        {
+            var track = _cache.Get<Track>(this.Claim<string>(Names.Username));
+
+            using(var db = _factory.OpenDbConnection())
+            {
+                var itemIds = new List<string>() { track.Id, track.Album.Id };
+                itemIds.AddRange(track.Artists.Select(a => a.Id));
+                itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
+
+                var query = db.From<GroupRelationship>()
+                    .Join<Group>((gr, g) => gr.GroupId == g.GroupId)
+                    .Where<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
+
+                var results = db.Select<FullGroupRelationship>(query);
+
+                return Json(results.Select(r => new
+                {
+                    r.GroupId,
+                    r.GroupName,
+                    r.ItemId,
+                    r.ItemType
+                }));
             }
         }
 

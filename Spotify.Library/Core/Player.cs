@@ -17,7 +17,7 @@ namespace Spotify.Library.Core
     }
 
     [Route("/me/player/recently-played")]
-    public class GetRecentlyPlayed : IReturn<PagableResponse<SingleTrackWrapper>>, IGet
+    public class GetRecentlyPlayedTracks : IReturn<PagableResponse<SingleTrackWrapper>>, IGet
     {
         [DataMember(Name = "limit")]
         public int Limit { get; set; }
