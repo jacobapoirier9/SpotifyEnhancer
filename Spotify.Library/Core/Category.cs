@@ -5,12 +5,12 @@ using System.Runtime.Serialization;
 namespace Spotify.Library.Core
 {
     [Route("/browse/categories")]
-    public class SpotifyFindCategories : IReturnPagable<SpotifyBrowseResponse>, IGet
+    public class GetCategories : IReturnPagable<BrowseResponse>, IGet
     {
         public short Limit { get; set; }
         public short Offset { get; set; }
     }
-    public class SpotifyCategory
+    public class Category
     {
         [DataMember(Name = "href")]
         public string Href { get; set; }

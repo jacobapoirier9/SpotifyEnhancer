@@ -17,6 +17,13 @@ using System.Threading.Tasks;
 
 namespace Spotify.Web.Controllers
 {
+    public class FindTracks
+    {
+        public string TrackId { get; set; }
+
+        public bool RecentlyPlayed { get; set; }
+    }
+    
     [Authorize]
     public class SpotifyController : Controller
     {
@@ -56,6 +63,18 @@ namespace Spotify.Web.Controllers
                 return groups;
             }
         }
+
+        [HttpGet]
+        [HttpPost]
+        public IActionResult RecentlyPlayed()
+        {
+            SetupApi(out var username);
+            var recentlyPlayed = _spotify.Get(new GetRecentlyPlayed() { Limit = 50 });
+
+
+
+            return Json(recentlyPlayed);
+        }
         #endregion
 
 
@@ -81,7 +100,7 @@ namespace Spotify.Web.Controllers
         {
             SetupApi();
 
-            var categories = _spotify.GetAll(new SpotifyFindCategories(), response => response.Categories)
+            var categories = _spotify.GetAll(new GetCategories(), response => response.Categories)
                 .OrderBy(c => c.Name);
 
             var grid = Helpers.ToArrayGrid(categories, 4);
@@ -93,7 +112,7 @@ namespace Spotify.Web.Controllers
         {
             SetupApi(out var username);
 
-            var playbackState = _spotify.Get(new SpotifyGetPlaybackState());
+            var playbackState = _spotify.Get(new GetPlaybackState());
             return Json(playbackState);
         }
 
@@ -128,7 +147,7 @@ namespace Spotify.Web.Controllers
 
 
 
-        private void JakeLoadItemIntoDatabase(SpotifyTrack track)
+        private void JakeLoadItemIntoDatabase(Track track)
         {
             var itemIds = new List<string>() { track.Id, track.Album.Id };
             itemIds.AddRange(track.Artists.Select(a => a.Id));

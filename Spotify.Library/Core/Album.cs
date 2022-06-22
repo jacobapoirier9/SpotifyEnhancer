@@ -3,13 +3,13 @@ using System.Runtime.Serialization;
 
 namespace Spotify.Library.Core
 {
-    public class SpotifyAlbum : SpotifyObject
+    public class Album : SpotifyObject
     {
         [DataMember(Name = "images")]
         public List<SpotifyImage> Images { get; set; }
 
         [DataMember(Name = "artists")]
-        public List<SpotifyArtist> Artists { get; set; }
+        public List<Artist> Artists { get; set; }
 
         [DataMember(Name = "release_date")]
         public string ReleaseDate { get; set; }

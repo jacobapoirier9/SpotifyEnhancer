@@ -27,7 +27,7 @@ namespace Spotify.Library.Core
         public int Total { get; set; }
     }
 
-    public class SpotifyExternalUrlsObject
+    public class ExternalUrls
     {
         [DataMember(Name = "spotify")]
         public string Spotify { get; set; }

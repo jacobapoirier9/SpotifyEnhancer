@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 namespace Spotify.Library.Core
 {
     [Route("/me")]
-    public class SpotifyGetCurrentlySignedInUser : IReturn<SpotifyUser>, IGet
+    public class GetUser : IReturn<User>, IGet
     {
 
     }
 
-    public class SpotifyUser : SpotifyObject
+    public class User : SpotifyObject
     {
         [DataMember(Name = "display_name")]
         public string DisplayName { get; set; }
@@ -21,7 +21,7 @@ namespace Spotify.Library.Core
         public string Email { get; set; }
 
         [DataMember(Name = "external_urls")]
-        public SpotifyExternalUrlsObject ExternalUrls { get; set; }
+        public ExternalUrls ExternalUrls { get; set; }
 
         [DataMember(Name = "followers")]
         public SpotifyEntityReferenceObject FollowersReference { get; set; }

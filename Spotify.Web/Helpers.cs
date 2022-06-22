@@ -256,11 +256,11 @@ namespace Spotify.Web
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public static List<TOut> GetAll<TResponse, TOut>(this IServiceClient client, IReturnPagable<TResponse> request, Func<TResponse, SpotifyPagableResponse<TOut>> func)
+        public static List<TOut> GetAll<TResponse, TOut>(this IServiceClient client, IReturnPagable<TResponse> request, Func<TResponse, PagableResponse<TOut>> func)
         {
             var list = new List<TOut>();
             var response = default(TResponse);
-            var pager = default(SpotifyPagableResponse<TOut>);
+            var pager = default(PagableResponse<TOut>);
 
             do
             {

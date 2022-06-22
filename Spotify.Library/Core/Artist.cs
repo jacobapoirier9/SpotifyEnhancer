@@ -1,6 +1,6 @@
 ﻿namespace Spotify.Library.Core
 {
-    public class SpotifyArtist : SpotifyObject
+    public class Artist : SpotifyObject
     {
     }
 }

@@ -10,7 +10,7 @@ namespace Spotify.Library.Core
         public short Offset { get; set; }
     }
 
-    public class SpotifyPagableResponse<T>
+    public class PagableResponse<T>
     {
         public string Href { get; set; }
 

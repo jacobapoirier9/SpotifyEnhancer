@@ -2,9 +2,9 @@
 
 namespace Spotify.Library.Core
 {
-    public class SpotifyBrowseResponse
+    public class BrowseResponse
     {
         [DataMember(Name = "categories")]
-        public SpotifyPagableResponse<SpotifyCategory> Categories { get; set; }
+        public PagableResponse<Category> Categories { get; set; }
     }
 }

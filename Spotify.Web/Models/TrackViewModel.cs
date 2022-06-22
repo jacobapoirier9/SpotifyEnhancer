@@ -9,7 +9,7 @@ namespace Spotify.Web.Models
 {
     public class TrackViewModel
     {
-        public SpotifyTrack Track { get; set; }
+        public Track Track { get; set; }
 
         public object GridData { get; set; }
     }

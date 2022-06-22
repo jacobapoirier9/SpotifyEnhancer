@@ -46,7 +46,7 @@ namespace Spotify.Web.Controllers
             else
             {
                 var token = _tokens.CodeForAccessToken(code);
-                var user = _spotify.Get(new SpotifyGetCurrentlySignedInUser(), token.AccessToken);
+                var user = _spotify.Get(new GetUser(), token.AccessToken);
 
                 var claims = new List<Claim>();
                 claims.AddClaim(Names.Username, user.DisplayName);
