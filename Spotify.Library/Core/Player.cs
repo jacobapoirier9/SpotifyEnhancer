@@ -11,7 +11,7 @@ namespace Spotify.Library.Core
     }
 
     [Route("/me/player/currently-playing")]
-    public class GetCurrentlyPlaying : IReturnVoid, IGet
+    public class GetCurrentlyPlaying : IReturn<CurrentlyPlaying>, IGet
     {
 
     }
@@ -71,6 +71,12 @@ namespace Spotify.Library.Core
         public string TimeStamp { get; set; }
         [DataMember(Name = "context")]
         public CurrentlyPlayingContext Context { get; set; }
+
+        [DataMember(Name = "item")]
+        public Track Item { get; set; }
+
+        [DataMember(Name = "is_playing")]
+        public bool IsPlaying { get; set; }
     }
 
     public class CurrentlyPlayingContext

@@ -43,12 +43,14 @@ namespace Spotify.Web
         }
 
 
-
-
         public void ConfigureServices(IServiceCollection services)
         {
             _logger.Debug("Configuring Services..");
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -82,9 +84,7 @@ namespace Spotify.Web
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {
                 BaseUri = _configuration.GetValue<string>("Spotify:ApiUri"),
-
                 ResponseFilter = _configuration.GetValue<bool>("DeepLogging:API") ? LogResponse : null,
-
                 ExceptionFilter = LogErrorResponse
             });
         }
@@ -93,7 +93,8 @@ namespace Spotify.Web
         {
             _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
 
-            //// This option is only needed when trying to debug the exact response
+            /// This option is only needed when trying to debug the exact response.
+            /// This can most likely also be achieved through Spotify's try it yourself portal.
             if (_configuration.GetValue<bool>("DeepLogging:ReadApiStream"))
             {
                 using (var stream = response.GetResponseStream())

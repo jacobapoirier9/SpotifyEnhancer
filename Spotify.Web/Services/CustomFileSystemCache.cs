@@ -20,6 +20,6 @@ namespace Spotify.Web.Services
         public bool HasKey(string username, string key) => File.Exists(CacheFileName(username, key));
 
         public void Save<T>(string username, T dto) => Save(username, typeof(T).Name, dto);
-        public void Save<T>(string username, string key, T dto) => File.WriteAllText(CacheFileName(username, key), dto.ToJson()); 
+        public void Save<T>(string username, string key, T dto) => File.WriteAllText(CacheFileName(username, key), Helpers.PrettyPrintJson(dto.ToJson())); 
     }
 }

@@ -43,23 +43,22 @@ namespace Spotify.Web.Controllers
 
 
 
-        #region StreamRoller Database Access
-        [HttpGet]
-        public List<Group> GetUserGroups(string username)
-        {
-            using (var db = _factory.OpenDbConnection())
-            {
-                //var username = this.Claim<string>(Names.Username);
-                var query = db.From<Group>()
-                    .Where(g => g.Username == username);
+        //[HttpGet]
+        //public List<Group> GetUserGroups(string username)
+        //{
+        //    using (var db = _factory.OpenDbConnection())
+        //    {
+        //        //var username = this.Claim<string>(Names.Username);
+        //        var query = db.From<Group>()
+        //            .Where(g => g.Username == username);
 
-                var groups = db.Select(query);
+        //        var groups = db.Select(query);
 
-                _logger.Debug("Returning {Count} groups for user {User}", groups.Count, username);
+        //        _logger.Debug("Returning {Count} groups for user {User}", groups.Count, username);
 
-                return groups;
-            }
-        }
+        //        return groups;
+        //    }
+        //}
 
         [HttpGet]
         [HttpPost]
@@ -69,14 +68,12 @@ namespace Spotify.Web.Controllers
             var recentlyPlayed = _spotify.Get(new GetRecentlyPlayedTracks() { Limit = 50 });
             return Json(recentlyPlayed);
         }
-        #endregion
 
 
 
 
 
 
-        #region Spotify API Access
         private void SetupApi() => SetupApi(out _);
         private void SetupApi(out string username)
         {
@@ -101,50 +98,40 @@ namespace Spotify.Web.Controllers
             return View(grid);
         }
 
+
         [HttpGet]
-        public IActionResult PlaybackState()
+        public IActionResult GetCurrentlyPlaying()
         {
             SetupApi(out var username);
 
             var playbackState = _spotify.Get(new GetPlaybackState());
+
+            // This might also return the url to a playlist in the context object, if it's playing form a playlist.
+            // This can be used to "Add to currently playing playlist" feature.
+            var currentlyPlaying = _spotify.Get(new GetCurrentlyPlaying());
+
             return Json(playbackState);
         }
 
-        public IActionResult TrackView(string trackId)
+        [HttpGet]
+        public IActionResult Track(string trackId)
         {
             SetupApi(out var username);
 
             var track = _spotify.Get(new GetTrack { TrackId = trackId });
 
+            JakeLoadItemIntoDatabase(track);
+
             _cache.Save(username, track);
 
-            using (var db = _factory.OpenDbConnection())
+            return View("TrackView", new TrackViewModel
             {
-                var itemIds = new List<string>() { track.Id, track.Album.Id };
-                itemIds.AddRange(track.Artists.Select(a => a.Id));
-                itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
-
-                var query = db.From<GroupRelationship>()
-                    .Join<Group>((gr, g) => gr.GroupId == g.GroupId)
-                    .Where<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
-
-                var results = db.Select<FullGroupRelationship>(query);
-
-                return View(new TrackViewModel
-                {
-                    Track = track,
-                    GridData = results.Select(r => new
-                    {
-                        r.GroupId,
-                        r.GroupName,
-                        r.ItemId,
-                        r.ItemType
-                    })
-                });
-            }
+                Track = track
+            });
         }
 
 
+        [HttpPost]
         public IActionResult GetGroupsForTrack()
         {
             var track = _cache.Get<Track>(this.Claim<string>(Names.Username));
@@ -170,6 +157,15 @@ namespace Spotify.Web.Controllers
                 }));
             }
         }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -216,8 +212,5 @@ namespace Spotify.Web.Controllers
                 db.InsertAll(toInsert);
             }
         }
-
-
-        #endregion
     }
 }

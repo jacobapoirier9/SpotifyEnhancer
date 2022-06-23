@@ -37,30 +37,30 @@ var helpers = {
 };
 var spotify = {
     clickCurrentlyPlaying: function (id) {
-        window.location.assign("/Spotify/TrackView?trackId=" + id);
+        window.location.assign("/Spotify/Track?trackId=" + id);
     },
     loadCurrentlyPlaying: function () {
         $.ajax({
-            url: "/Spotify/PlaybackState",
+            url: "/Spotify/GetCurrentlyPlaying",
             success: function (response) {
                 console.debug("Currently playing:", response);
                 var $currentlyPlaying = $("#currently-playing");
                 if (response === null) {
                     $currentlyPlaying.children("img").remove();
                 }
-                else if ($currentlyPlaying.attr("data-uri") === response.item.uri) {
+                else if ($currentlyPlaying.attr("data-uri") === response.Item.Uri) {
                     console.debug("Currently playing is already set on the webpage");
                 }
                 else {
                     console.debug("Need to set currently playing on the webpage");
-                    $currentlyPlaying.attr("data-uri", response.item.uri)
+                    $currentlyPlaying.attr("data-uri", response.Item.Uri)
                         .append("<img>").children("img")
-                        .attr("src", response.item.album.images[1].url)
-                        .attr("alt", response.item.name)
-                        .attr("title", response.item.name)
+                        .attr("src", response.Item.Album.Images[1].Url)
+                        .attr("alt", response.Item.Name)
+                        .attr("title", response.Item.Name)
                         .attr("width", 100)
                         .attr("height", 100)
-                        .click(function () { return spotify.clickCurrentlyPlaying(response.item.id); });
+                        .click(function () { return spotify.clickCurrentlyPlaying(response.Item.Id); });
                 }
             },
             error: function (error) {
@@ -75,14 +75,16 @@ var spotify = {
         },
         track: {
             init: function () {
-                console.debug(helpers.getJson("#relationship-json"));
+                //console.debug(helpers.getJson("#relationship-json"))
                 setTimeout(function () {
                     var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel);
-                    $relationshipGrid.setGridParam({ data: helpers.getJson("#relationship-json") });
                     $.ajax({
                         url: "/Spotify/GetGroupsForTrack",
                         success: function (response) {
                             console.debug("Success!", response);
+                        },
+                        error: function (error) {
+                            console.error(error);
                         }
                     });
                     $relationshipGrid.trigger("reloadGrid");
@@ -93,6 +95,9 @@ var spotify = {
     grid: {
         groupRelationships: {
             gridModel: helpers.createGridModel({
+                datatype: "json",
+                url: "/Spotify/GetGroupsForTrack",
+                mtype: "POST",
                 idPrefix: "rel_",
                 colModel: [
                     { hidden: true, name: "ItemId" },
@@ -100,13 +105,6 @@ var spotify = {
                     { name: "GroupName", label: "Group" },
                     { name: "ItemType", label: "Type" }
                 ]
-                /*
-                 * GroupId: 1
-GroupName: "Road Trip"
-ItemId: "5J7HIH6Vf8LRbC0sgs7rV2"
-ItemType: "artist"
-Username: "jacobapoirier9"
-                 */
             }),
         }
     },
