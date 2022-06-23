@@ -152,8 +152,17 @@ namespace Spotify.Web.Controllers
                 {
                     r.GroupId,
                     r.GroupName,
+                    r.ItemType,
                     r.ItemId,
-                    r.ItemType
+                    AddedTo = r.ItemType switch
+                    {
+                        "track" => track.Name + " (track)",
+                        "album" => track.Album.Name + " (album)",
+                        "artist" => track.AllUniqueArtists.Select(artist => artist.Name).Join(",") + " (artist)",
+
+                        _ => "default"
+                    }
+
                 }));
             }
         }
@@ -173,8 +182,7 @@ namespace Spotify.Web.Controllers
         private void JakeLoadItemIntoDatabase(Track track)
         {
             var itemIds = new List<string>() { track.Id, track.Album.Id };
-            itemIds.AddRange(track.Artists.Select(a => a.Id));
-            itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
+            itemIds.AddRange(track.AllUniqueArtists.Select(a => a.Id));
 
             var groupIds = new List<int>() { 1, 2, 3, 4 };
 
@@ -196,7 +204,7 @@ namespace Spotify.Web.Controllers
                 ItemType = "album"
             }));
 
-            foreach (var artist in track.Artists.Concat(track.Album.Artists))
+            foreach (var artist in track.AllUniqueArtists)
             {
                 toInsert.AddRange(groupIds.Select(groupId => new GroupRelationship
                 {
@@ -209,6 +217,7 @@ namespace Spotify.Web.Controllers
 
             using (var db = _factory.OpenDbConnection())
             {
+                db.Delete<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
                 db.InsertAll(toInsert);
             }
         }

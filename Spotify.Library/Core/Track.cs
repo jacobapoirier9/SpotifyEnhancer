@@ -1,5 +1,6 @@
 ﻿using ServiceStack;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Spotify.Library.Core
@@ -19,6 +20,29 @@ namespace Spotify.Library.Core
 
     public class Track : SpotifyObject
     {
+        private List<Artist> _allUniqueArtists;
+
+        public List<Artist> AllUniqueArtists
+        {
+            get
+            {
+                if (_allUniqueArtists is null)
+                {
+                    _allUniqueArtists = new List<Artist>();
+
+                    var all = this.Artists.Concat(this.Album.Artists);
+                    foreach (var id in all.Select(a => a.Id).Distinct())
+                    {
+                        _allUniqueArtists.Add(all.First(a => a.Id == id));
+                    }
+                }
+
+                return _allUniqueArtists;
+            }
+        }
+
+
+
         [DataMember(Name = "artists")]
         public List<Artist> Artists { get; set; }
 

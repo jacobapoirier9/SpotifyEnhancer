@@ -33,6 +33,25 @@ var helpers = {
         };
         $.extend(defaults, options);
         return defaults;
+    },
+    grid: {
+        setGridWidthToParentWidth: function ($grid) {
+            var width = Math.floor($grid.closest(".ui-jqgrid").parent().width());
+            $grid.jqGrid("setGridWidth", width);
+        },
+        setGridHeightToViewportHeight: function ($grid) {
+            // @ts-ignore
+            var height = parseInt($(window).height() - $grid.offset().top - ($("header").height() || 0) - ($(".box-footer").height() || 0));
+            $grid.jqGrid("setGridHeight", height);
+        },
+        resizeGridOnWindowResize: function ($grid) {
+            $(window).on("resize expanded.pushMenu collapsed.pushMenu", function () {
+                setTimeout(function () {
+                    helpers.grid.setGridHeightToViewportHeight($grid);
+                    helpers.grid.setGridWidthToParentWidth($grid);
+                }, 350);
+            }).trigger("resize");
+        },
     }
 };
 var spotify = {
@@ -76,18 +95,19 @@ var spotify = {
         track: {
             init: function () {
                 //console.debug(helpers.getJson("#relationship-json"))
+                var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel);
+                helpers.grid.resizeGridOnWindowResize($relationshipGrid);
+                $.ajax({
+                    url: "/Spotify/GetGroupsForTrack",
+                    success: function (response) {
+                        console.debug("Success!", response);
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    }
+                });
+                $relationshipGrid.trigger("reloadGrid");
                 setTimeout(function () {
-                    var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel);
-                    $.ajax({
-                        url: "/Spotify/GetGroupsForTrack",
-                        success: function (response) {
-                            console.debug("Success!", response);
-                        },
-                        error: function (error) {
-                            console.error(error);
-                        }
-                    });
-                    $relationshipGrid.trigger("reloadGrid");
                 }, 1000);
             }
         }
@@ -103,7 +123,8 @@ var spotify = {
                     { hidden: true, name: "ItemId" },
                     { hidden: true, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
-                    { name: "ItemType", label: "Type" }
+                    //{ name: "ItemType", label: "Type" },
+                    { name: "AddedTo", label: "Related From" }
                 ]
             }),
         }
