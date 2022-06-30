@@ -1,0 +1,12 @@
+﻿@model GroupsViewModel
+@{
+    ViewData["Title"] = "Groups";
+}
+
+<table id="groupsGrid"></table>
+
+@section Scripts {
+    <script>
+        $(spotify.page.groups.init)
+    </script>
+} 

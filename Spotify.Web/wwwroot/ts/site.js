@@ -62,16 +62,17 @@ var spotify = {
         $.ajax({
             url: "/Spotify/GetCurrentlyPlaying",
             success: function (response) {
-                console.debug("Currently playing:", response);
+                console.debug("CurrentlyPlaying:", response);
                 var $currentlyPlaying = $("#currently-playing");
                 if (response === null) {
+                    console.debug("Nothing is playing, removing image");
                     $currentlyPlaying.children("img").remove();
                 }
                 else if ($currentlyPlaying.attr("data-uri") === response.Item.Uri) {
-                    console.debug("Currently playing is already set on the webpage");
+                    console.debug("Currently playing image is already set");
                 }
                 else {
-                    console.debug("Need to set currently playing on the webpage");
+                    console.debug("Currently playing image needs to be set again");
                     $currentlyPlaying.attr("data-uri", response.Item.Uri)
                         .append("<img>").children("img")
                         .attr("src", response.Item.Album.Images[1].Url)
@@ -83,7 +84,6 @@ var spotify = {
                 }
             },
             error: function (error) {
-                console.debug(error);
             }
         });
     },
@@ -94,30 +94,63 @@ var spotify = {
         },
         track: {
             init: function () {
-                //console.debug(helpers.getJson("#relationship-json"))
                 var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel);
                 helpers.grid.resizeGridOnWindowResize($relationshipGrid);
                 $.ajax({
+                    type: "POST",
                     url: "/Spotify/GetGroupsForTrack",
                     success: function (response) {
                         console.debug("Success!", response);
+                        $relationshipGrid.setGridParam({ data: response });
+                        $relationshipGrid.trigger("reloadGrid");
                     },
                     error: function (error) {
                         console.error(error);
                     }
                 });
-                $relationshipGrid.trigger("reloadGrid");
-                setTimeout(function () {
-                }, 1000);
+            }
+        },
+        groups: {
+            init: function () {
+                var $groupsGrid = $("#groupsGrid").jqGrid(spotify.grid.groups.gridModel);
+                helpers.grid.resizeGridOnWindowResize($groupsGrid);
+                $.ajax({
+                    type: "POST",
+                    url: "/Spotify/GetGroups",
+                    success: function (response) {
+                        console.debug(response);
+                        $groupsGrid.setGridParam({ data: response });
+                        $groupsGrid.trigger("reloadGrid");
+                    },
+                    error: function (error) {
+                        console.debug(error);
+                    }
+                });
             }
         }
     },
     grid: {
+        groups: {
+            gridModel: helpers.createGridModel({
+                //url: "/Spotify/GetGroups",
+                datatype: "local",
+                //mtype: "POST",
+                idPrefix: "grp_",
+                colModel: [
+                    { hidden: true, name: "GroupId" },
+                    { name: "GroupName", label: "Group" },
+                    { name: "GroupDescription", label: "Description" },
+                    { name: "TrackCount", label: "Tracks" },
+                    { name: "AlbumCount", label: "Albums" },
+                    { name: "ArtistCount", label: "Artists" }
+                ]
+            })
+        },
         groupRelationships: {
             gridModel: helpers.createGridModel({
-                datatype: "json",
-                url: "/Spotify/GetGroupsForTrack",
-                mtype: "POST",
+                //url: "/Spotify/GetGroupsForTrack",
+                datatype: "local",
+                //mtype: "POST",
                 idPrefix: "rel_",
                 colModel: [
                     { hidden: true, name: "ItemId" },

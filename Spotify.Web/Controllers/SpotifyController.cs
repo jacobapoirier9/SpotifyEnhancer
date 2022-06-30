@@ -38,28 +38,7 @@ namespace Spotify.Web.Controllers
         {
             return View("PlaylistBuilder");
         }
-
-
-
-
-
-        //[HttpGet]
-        //public List<Group> GetUserGroups(string username)
-        //{
-        //    using (var db = _factory.OpenDbConnection())
-        //    {
-        //        //var username = this.Claim<string>(Names.Username);
-        //        var query = db.From<Group>()
-        //            .Where(g => g.Username == username);
-
-        //        var groups = db.Select(query);
-
-        //        _logger.Debug("Returning {Count} groups for user {User}", groups.Count, username);
-
-        //        return groups;
-        //    }
-        //}
-
+        
         [HttpGet]
         [HttpPost]
         public IActionResult RecentlyPlayed()
@@ -68,6 +47,47 @@ namespace Spotify.Web.Controllers
             var recentlyPlayed = _spotify.Get(new GetRecentlyPlayedTracks() { Limit = 50 });
             return Json(recentlyPlayed);
         }
+
+
+
+
+
+
+        [HttpGet]
+        public IActionResult Groups() => View();
+
+        public IActionResult GetGroups()
+        {
+            using (var db = _factory.OpenDbConnection())
+            {
+                var tableAlias = db.GetDialectProvider().GetQuotedTableName(typeof(GroupRelationship).GetModelMetadata());
+                var query = db.From<Group>()
+                    .Join<Group, GroupRelationship>((g, gr) => g.Username == gr.Username && g.GroupId == gr.GroupId)
+                    .GroupBy<Group>(g => new
+                    {
+                        g.GroupId,
+                        g.GroupName,
+                        g.GroupDescription
+                    })
+                    .Where<Group>(g => g.Username == this.Claim<string>(Names.Username))
+                    .Select<Group, GroupRelationship>((g, gr) => new
+                    {
+                        GroupId = g.GroupId,
+                        GroupName = g.GroupName,
+                        GroupDescription = g.GroupDescription,
+                        TrackCount = Sql.Sum($"case when {tableAlias}.ItemType = 'track' then 1 else 0 end"),
+                        AlbumCount = Sql.Sum($"case when {tableAlias}.ItemType = 'album' then 1 else 0 end"),
+                        ArtistCount = Sql.Sum($"case when {tableAlias}.ItemType = 'artist' then 1 else 0 end")
+                    });
+
+                var results = db.Select<FullGroup>(query);
+
+                return Json(results);
+            }
+        }
+
+        
+
 
 
 
@@ -108,7 +128,7 @@ namespace Spotify.Web.Controllers
 
             // This might also return the url to a playlist in the context object, if it's playing form a playlist.
             // This can be used to "Add to currently playing playlist" feature.
-            var currentlyPlaying = _spotify.Get(new GetCurrentlyPlaying());
+            //var currentlyPlaying = _spotify.Get(new GetCurrentlyPlaying());
 
             return Json(playbackState);
         }
@@ -156,13 +176,12 @@ namespace Spotify.Web.Controllers
                     r.ItemId,
                     AddedTo = r.ItemType switch
                     {
-                        "track" => track.Name + " (track)",
-                        "album" => track.Album.Name + " (album)",
-                        "artist" => track.AllUniqueArtists.Select(artist => artist.Name).Join(",") + " (artist)",
+                        "track" => track.Name,
+                        "album" => track.Album.Name,
+                        "artist" => track.AllUniqueArtists.Select(artist => artist.Name).Join(","),
 
-                        _ => "default"
-                    }
-
+                        _ => throw new IndexOutOfRangeException(nameof(r.ItemType))
+                    } + $" ({r.ItemType})"
                 }));
             }
         }
