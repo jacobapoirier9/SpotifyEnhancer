@@ -30,6 +30,8 @@ namespace Spotify.Web.Controllers
         private readonly ICustomCache _cache;
         private IDatabaseService _service;
 
+        private string _username => this.Claim<string>(Names.Username);
+
         public SpotifyController(IServiceClient spotify, IDatabaseService service, ICustomCache cache)
         {
             _spotify = spotify;
@@ -65,7 +67,7 @@ namespace Spotify.Web.Controllers
         [HttpPost]
         public IActionResult GetGroups()
         {
-            var groups = _service.FindGroups(new FindGroups { Username = this.Claim<string>(Names.Username) });
+            var groups = _service.FindGroups(new FindGroups { Username = _username });
             return Json(groups);
         }
 
@@ -74,7 +76,6 @@ namespace Spotify.Web.Controllers
         public IActionResult SaveGroup(SaveGroup toSave)
         {
             var group = _service.SaveGroup(toSave);
-
             return Json(group);
         }
 
@@ -82,7 +83,7 @@ namespace Spotify.Web.Controllers
         private void SetupApi() => SetupApi(out _);
         private void SetupApi(out string username)
         {
-            username = this.Claim<string>(Names.Username);
+            username = _username;
             var token = this.Claim<string>(Names.AccessToken);
 
             _spotify.BearerToken = token;

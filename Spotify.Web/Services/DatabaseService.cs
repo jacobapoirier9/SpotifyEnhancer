@@ -2,6 +2,7 @@
 using ServiceStack.OrmLite;
 using Spotify.Web.Database;
 using Spotify.Web.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -28,7 +29,6 @@ namespace Spotify.Web.Services
                     g.GroupName,
                     g.GroupDescription
                 })
-                .Where<DbGroup>(g => g.Username == username)
                 .Select<DbGroup, DbGroupRelationship>((g, gr) => new
                 {
                     GroupId = g.GroupId,
@@ -41,6 +41,18 @@ namespace Spotify.Web.Services
 
             return query;
         }
+
+        private bool RequireAdmin(IHasUsername request) => IsAdminUser(request) ? true : throw new Exception($"User {request.Username} is not authorized for this operation");
+
+        private bool IsAdminUser(IHasUsername request)
+        {
+            var adminUsers = new List<string>() { "jacobapoirier9" };
+            var isAdminUser = adminUsers.Contains(request.Username);
+            return isAdminUser;
+        }
+        
+
+
 
 
         public List<FullGroup> FindGroups(FindGroups request)
@@ -85,7 +97,7 @@ namespace Spotify.Web.Services
                 {
                     var query = db.From<DbGroupRelationship>()
                         .Join<DbGroup>((gr, g) => gr.GroupId == g.GroupId)
-                        .Where<DbGroupRelationship>(gr => Sql.In(gr.ItemId, request.ItemIds));
+                        .Where<DbGroupRelationship>(gr => Sql.In(gr.ItemId, request.ItemIds) && gr.Username == request.Username);
 
                     var results = db.Select<FullGroupRelationship>(query);
 
