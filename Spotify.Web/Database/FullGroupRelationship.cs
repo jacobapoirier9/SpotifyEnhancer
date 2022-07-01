@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Spotify.Web.Database
 {
-    public class FullGroupRelationship : GroupRelationship
+    public class FullGroupRelationship : DbGroupRelationship
     {
         public string GroupName { get; set; }
     }

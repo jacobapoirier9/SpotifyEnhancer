@@ -10,6 +10,19 @@ var helpers = {
         }
     },
 
+    coalesce(...params: any[]) {
+        for (var i in params) {
+            if (!helpers.isNullOfUndefined(params[i])) {
+                return params[i]
+            }
+        }
+        return null
+    },
+
+    isNullOfUndefined(item: any) {
+        return item === null || item === undefined
+    },
+
     getJson(selector: string) {
         return JSON.parse($(selector).val())
     },
@@ -55,6 +68,136 @@ var helpers = {
                     helpers.grid.setGridWidthToParentWidth($grid);
                 }, 350);
             }).trigger("resize");
+        },
+    },
+
+    modal: {
+        setData(selector: string, formData: any) {
+            var $modal = $(selector)
+            // Setting form values where the key is the id and the value is translated into a dom value
+            for (var key in formData) {
+                var value = formData[key]
+                var $item = $modal.find("#" + key)
+                if ($item.attr("type") == "checkbox") {
+                    $item.prop("checked", value ?? false)
+                } else {
+                    $item.val(value ?? false)
+                }
+            }
+        },
+        getData(selector: string) {
+            var $modal = $(selector)
+            var form = {}
+            $.each($modal.find("input, select, textarea"), (index, item) => {
+
+                var $item = $(item)
+                var key = $item.attr("id")
+
+                if (!helpers.isNullOfUndefined(key)) {
+                    if ($item.attr("type") == "checkbox") {
+                        console.debug("Checkbox:", $item.prop("checked"))
+                        form[key] = $item.prop("checked")
+                    } else {
+                        form[key] = $item.val()
+                    }
+                }
+            })
+
+            return form
+        },
+        open(selector: string, options: {
+            mode?: string
+            formData?: any
+            title?: string
+        }) {
+            $("[data-target='" + selector + "']").click()
+
+            var $modal = $(selector)
+
+            if (!helpers.isNullOfUndefined(options.mode)) {
+                $modal.attr("data-mode", options.mode)
+            }
+
+            if (!helpers.isNullOfUndefined(options.title)) {
+                $modal.find(".modal-title").html(options.title)
+            }
+            helpers.modal.setData(selector, options.formData ?? {})
+        },
+        init(selector: string, options: {
+
+            title?: string
+            name?: string
+
+            onsubmit?: {
+                [key: string]: (form?: any) => void
+            }
+
+            submitText?: string
+
+            onopen?: (click?: JQueryEventObject) => void
+
+            onclose?: () => void
+            closeText?: string
+
+            onload?: (click?: JQueryEventObject, refresh?: (click: JQueryEventObject) => void) => void
+            onrefresh?: (click?: JQueryEventObject) => void
+
+            mode?: string
+            formData?: any
+
+        }) {
+            var $modal = $(selector)
+
+            // Submission
+            var $submit = $modal.find("input[type=submit]")
+            if (!helpers.isNullOfUndefined(options.onsubmit)) {
+                $submit.show()
+                $submit.click(() => {
+                    var mode = $modal.attr("data-mode")
+                    var form = helpers.modal.getData(selector)
+                    options.onsubmit[mode](form)
+                })
+
+                if (!helpers.isNullOfUndefined(options.submitText)) {
+                    $submit.val(options.submitText)
+                }
+            } else {
+                $submit.hide()
+            }
+
+            // Closeout
+            var $close = $modal.find("input[data-dismiss=modal]")
+            if (!helpers.isNullOfUndefined(options.onclose)) {
+                if (!helpers.isNullOfUndefined(options.closeText)) {
+                    $close.val(options.closeText)
+                }
+            }
+
+            var $button = $("[data-target='" + selector + "']")
+            $button.on("click", (click) => {
+                $modal.find(".modal-title").html(options.title)
+                $modal.attr("data-mode", options.mode)
+
+                // Fire the event when opening the modal
+                if (!helpers.isNullOfUndefined(options.onopen)) {
+                    options.onopen(click)
+                }
+
+                helpers.modal.setData(selector, options.formData)
+
+                // Has the correct data already been loaded for this modal
+                if ($modal.attr("data-loaded") === helpers.coalesce(options.name, "modal")) {
+                    if (!helpers.isNullOfUndefined(options.onrefresh)) {
+                        options.onrefresh(click)
+                    }
+                }
+                else {
+                    if (options.onload) {
+                        options.onload(click, options.onrefresh)
+                    }
+                    $modal.attr("data-loaded", helpers.coalesce(options.name, "modal"))
+                }
+            })
         },
     }
 }
@@ -106,6 +249,88 @@ var spotify = {
                 var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel)
                 helpers.grid.resizeGridOnWindowResize($relationshipGrid)
 
+                spotify.grid.groupRelationships.loadFromServer()
+            }
+        },
+        groups: {
+            init() {
+                var $groupsGrid = $("#groupsGrid").jqGrid(spotify.grid.groups.gridModel)
+                helpers.grid.resizeGridOnWindowResize($groupsGrid)
+
+                helpers.modal.init("#groupModal", {
+                    title: "Create Group",
+                    mode: "create",
+                    formData: {
+                        groupName: "",
+                        groupDescription: ""
+                    },
+                    onsubmit: {
+                        create: (form) => {
+                            $.ajax({
+                                url: "/Spotify/SaveGroup",
+                                type: "POST",
+                                data: {
+                                    GroupName: form.groupName,
+                                    GroupDescription: form.groupDescription
+                                },
+                                success: (response) => {
+                                    spotify.grid.groups.loadFromServer()
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+        }
+    },
+
+    grid: {
+        groups: {
+            gridModel: helpers.createGridModel({
+                url: "/Spotify/GetGroups",
+                mtype: "POST",
+                datatype: "json",
+                idPrefix: "grp_",
+                colModel: [
+                    { hidden: true, name: "GroupId" },
+                    {
+                        label: "Actions", formatter: (cellValue, info, model, action) => {
+                            var html = ""
+                            return html
+                        }
+                    },
+                    { name: "GroupName", label: "Group" },
+                    { name: "GroupDescription", label: "Description" },
+                    { name: "TrackCount", label: "Tracks" },
+                    { name: "AlbumCount", label: "Albums" },
+                    { name: "ArtistCount", label: "Artists" }
+                ]
+            }),
+            loadFromServer() {
+                var $groupsGrid = $("#groupsGrid")
+                 $.ajax({
+                    type: "POST",
+                    url: "/Spotify/GetGroups",
+                    success: (response) => {
+                        $groupsGrid.setGridParam({ data: response })
+                        $groupsGrid.trigger("reloadGrid")
+                    }
+                })
+            }
+        },
+        groupRelationships: {
+            gridModel: helpers.createGridModel({
+                datatype: "json",
+                idPrefix: "rel_",
+                colModel: [
+                    { hidden: true, name: "ItemId" },
+                    { hidden: true, name: "GroupId" },
+                    { name: "GroupName", label: "Group" },
+                    { name: "AddedTo", label: "Related From" }
+                ]
+            }),
+            loadFromServer() {
+                var $relationshipGrid = $("#relationship-grid")
                 $.ajax({
                     type: "POST",
                     url: "/Spotify/GetGroupsForTrack",
@@ -118,62 +343,7 @@ var spotify = {
                         console.error(error)
                     }
                 })
-
             }
-        },
-        groups: {
-            init() {
-
-                var $groupsGrid = $("#groupsGrid").jqGrid(spotify.grid.groups.gridModel)
-                helpers.grid.resizeGridOnWindowResize($groupsGrid)
-
-                $.ajax({
-                    type: "POST",
-                    url: "/Spotify/GetGroups",
-                    success: (response) => {
-                        console.debug(response)
-                        $groupsGrid.setGridParam({ data: response })
-                        $groupsGrid.trigger("reloadGrid")
-                    },
-                    error: (error) => {
-                        console.debug(error)
-                    }
-                })
-            }
-        }
-    },
-
-    grid: {
-        groups: {
-            gridModel: helpers.createGridModel({
-                //url: "/Spotify/GetGroups",
-                datatype: "local",
-                //mtype: "POST",
-                idPrefix: "grp_",
-                colModel: [
-                    { hidden: true, name: "GroupId" },
-                    { name: "GroupName", label: "Group" },
-                    { name: "GroupDescription", label: "Description" },
-                    { name: "TrackCount", label: "Tracks" },
-                    { name: "AlbumCount", label: "Albums" },
-                    { name: "ArtistCount", label: "Artists" }
-                ]
-            })
-        },
-        groupRelationships: {
-            gridModel: helpers.createGridModel({
-                //url: "/Spotify/GetGroupsForTrack",
-                datatype: "local",
-                //mtype: "POST",
-                idPrefix: "rel_",
-                colModel: [
-                    { hidden: true, name: "ItemId" },
-                    { hidden: true, name: "GroupId" },
-                    { name: "GroupName", label: "Group" },
-                    //{ name: "ItemType", label: "Type" },
-                    { name: "AddedTo", label: "Related From" }
-                ]
-            }),
         }
     },
 

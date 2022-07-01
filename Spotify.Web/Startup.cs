@@ -81,6 +81,7 @@ namespace Spotify.Web
 
             services.AddSingleton<ICustomCache, CustomFileSystemCache>();
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
+            services.AddSingleton<IDatabaseService, DatabaseService>();
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {
                 BaseUri = _configuration.GetValue<string>("Spotify:ApiUri"),

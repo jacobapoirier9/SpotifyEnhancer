@@ -4,8 +4,9 @@ namespace Spotify.Web.Database
 {
     [Schema("Spotify")]
     [Alias("Groups")]
-    public class Group
+    public class DbGroup
     {
+        [IgnoreOnInsert]
         public int GroupId { get; set; }
 
         public string Username { get; set; }

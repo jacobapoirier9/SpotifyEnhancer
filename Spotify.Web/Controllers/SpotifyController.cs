@@ -12,6 +12,7 @@ using Spotify.Web.Models;
 using Spotify.Web.Services;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -23,16 +24,17 @@ namespace Spotify.Web.Controllers
     {
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IServiceClient _spotify;
-        private readonly IDbConnectionFactory _factory;
         private readonly ICustomCache _cache;
+        private IDatabaseService _service;
 
-
-        public SpotifyController(IServiceClient spotify, IDbConnectionFactory factory, ICustomCache cache)
+        public SpotifyController(IServiceClient spotify, IDatabaseService service, ICustomCache cache)
         {
             _spotify = spotify;
-            _factory = factory;
             _cache = cache;
+            _service = service;
         }
+
+
 
         public IActionResult Index()
         {
@@ -58,41 +60,15 @@ namespace Spotify.Web.Controllers
 
         public IActionResult GetGroups()
         {
-            using (var db = _factory.OpenDbConnection())
-            {
-                var tableAlias = db.GetDialectProvider().GetQuotedTableName(typeof(GroupRelationship).GetModelMetadata());
-                var query = db.From<Group>()
-                    .Join<Group, GroupRelationship>((g, gr) => g.Username == gr.Username && g.GroupId == gr.GroupId)
-                    .GroupBy<Group>(g => new
-                    {
-                        g.GroupId,
-                        g.GroupName,
-                        g.GroupDescription
-                    })
-                    .Where<Group>(g => g.Username == this.Claim<string>(Names.Username))
-                    .Select<Group, GroupRelationship>((g, gr) => new
-                    {
-                        GroupId = g.GroupId,
-                        GroupName = g.GroupName,
-                        GroupDescription = g.GroupDescription,
-                        TrackCount = Sql.Sum($"case when {tableAlias}.ItemType = 'track' then 1 else 0 end"),
-                        AlbumCount = Sql.Sum($"case when {tableAlias}.ItemType = 'album' then 1 else 0 end"),
-                        ArtistCount = Sql.Sum($"case when {tableAlias}.ItemType = 'artist' then 1 else 0 end")
-                    });
-
-                var results = db.Select<FullGroup>(query);
-
-                return Json(results);
-            }
+            var groups = _service.FindGroups(new FindGroups { Username = this.Claim<string>(Names.Username) });
+            return Json(groups);
         }
 
-        
-
-
-
-
-
-
+        public IActionResult SaveGroup(SaveGroup toSave)
+        {
+            var group = _service.SaveGroup(toSave);
+            return Json(group);
+        }
 
         private void SetupApi() => SetupApi(out _);
         private void SetupApi(out string username)
@@ -139,9 +115,6 @@ namespace Spotify.Web.Controllers
             SetupApi(out var username);
 
             var track = _spotify.Get(new GetTrack { TrackId = trackId });
-
-            JakeLoadItemIntoDatabase(track);
-
             _cache.Save(username, track);
 
             return View("TrackView", new TrackViewModel
@@ -156,89 +129,27 @@ namespace Spotify.Web.Controllers
         {
             var track = _cache.Get<Track>(this.Claim<string>(Names.Username));
 
-            using(var db = _factory.OpenDbConnection())
-            {
-                var itemIds = new List<string>() { track.Id, track.Album.Id };
-                itemIds.AddRange(track.Artists.Select(a => a.Id));
-                itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
-
-                var query = db.From<GroupRelationship>()
-                    .Join<Group>((gr, g) => gr.GroupId == g.GroupId)
-                    .Where<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
-
-                var results = db.Select<FullGroupRelationship>(query);
-
-                return Json(results.Select(r => new
-                {
-                    r.GroupId,
-                    r.GroupName,
-                    r.ItemType,
-                    r.ItemId,
-                    AddedTo = r.ItemType switch
-                    {
-                        "track" => track.Name,
-                        "album" => track.Album.Name,
-                        "artist" => track.AllUniqueArtists.Select(artist => artist.Name).Join(","),
-
-                        _ => throw new IndexOutOfRangeException(nameof(r.ItemType))
-                    } + $" ({r.ItemType})"
-                }));
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        private void JakeLoadItemIntoDatabase(Track track)
-        {
             var itemIds = new List<string>() { track.Id, track.Album.Id };
-            itemIds.AddRange(track.AllUniqueArtists.Select(a => a.Id));
+            itemIds.AddRange(track.Artists.Select(a => a.Id));
+            itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
 
-            var groupIds = new List<int>() { 1, 2, 3, 4 };
+            var relationships = _service.FindGroupRelationships(new FindGroupRelationships { ItemIds = itemIds });
 
-            var toInsert = new List<GroupRelationship>();
-
-            toInsert.AddRange(groupIds.Select(groupId => new GroupRelationship 
-            { 
-                GroupId = groupId,
-                Username = "jacobapoirier9",
-                ItemId = track.Id,
-                ItemType = "track"
-            }));
-
-            toInsert.AddRange(groupIds.Select(groupId => new GroupRelationship
+            return Json(relationships.Select(r => new
             {
-                GroupId = groupId,
-                Username = "jacobapoirier9",
-                ItemId = track.Album.Id,
-                ItemType = "album"
-            }));
-
-            foreach (var artist in track.AllUniqueArtists)
-            {
-                toInsert.AddRange(groupIds.Select(groupId => new GroupRelationship
+                r.GroupId,
+                r.GroupName,
+                r.ItemType,
+                r.ItemId,
+                AddedTo = r.ItemType switch
                 {
-                    GroupId = groupId,
-                    Username = "jacobapoirier9",
-                    ItemId = artist.Id,
-                    ItemType = "artist"
-                }));
-            }
+                    "track" => track.Name,
+                    "album" => track.Album.Name,
+                    "artist" => track.AllUniqueArtists.Select(artist => artist.Name).Join(","),
 
-            using (var db = _factory.OpenDbConnection())
-            {
-                db.Delete<GroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
-                db.InsertAll(toInsert);
-            }
+                    _ => throw new IndexOutOfRangeException(nameof(r.ItemType))
+                } + $" ({r.ItemType})"
+            }));
         }
     }
 }

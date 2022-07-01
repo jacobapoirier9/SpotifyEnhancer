@@ -4,7 +4,7 @@ namespace Spotify.Web.Database
 {
     [Schema("Spotify")]
     [Alias("GroupRelationship")]
-    public class GroupRelationship
+    public class DbGroupRelationship
     {
         public string Username { get; set; }
 

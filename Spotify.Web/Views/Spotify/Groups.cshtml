@@ -3,6 +3,47 @@
     ViewData["Title"] = "Groups";
 }
 
+
+
+<div id="groupModal" class="modal modal-transactional">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>Name:</label>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="text" id="groupName" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label>Description:</label>
+                    </div>
+                    <div class="col-lg-6">
+                        <input type="text" id="groupDescription" />
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <input id="closeBtn" type="button" class="pull-left" value="Close" data-dismiss="modal" />
+                <input id="submitBtn" type="submit" class="pull-right" value="Submit" data-dismiss="modal" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<button data-toggle="modal" data-target="#groupModal">Create Group</button>
 <table id="groupsGrid"></table>
 
 @section Scripts {
