@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Spotify.Web.Models
 {
-    public class TrackViewModel
+    public class TrackSingleViewModel
     {
         public Track Track { get; set; }
 

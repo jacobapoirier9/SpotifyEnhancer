@@ -39,21 +39,23 @@ namespace Spotify.Web.Controllers
             _service = service;
         }
 
+        private void SetupApi() => SetupApi(out _);
+        private void SetupApi(out string username)
+        {
+            username = _username;
+            var token = this.Claim<string>(Names.AccessToken);
+
+            _spotify.BearerToken = token;
+        }
+
 
         [HttpGet]
         public IActionResult Index()
         {
-            return View("PlaylistBuilder");
+            return View("Index");
         }
         
-        [HttpGet]
-        [HttpPost]
-        public IActionResult RecentlyPlayed()
-        {
-            SetupApi(out var username);
-            var recentlyPlayed = _spotify.Get(new GetRecentlyPlayedTracks() { Limit = 50 });
-            return Json(recentlyPlayed);
-        }
+       
 
 
 
@@ -65,11 +67,11 @@ namespace Spotify.Web.Controllers
         {
             if (groupId.HasValue)
             {
-                return View("SingleGroup", _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username));
+                return View("GroupSingle", _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username));
             }
             else
             {
-                return View("AllGroups");
+                return View("GroupeMultiple");
             }
         }
 
@@ -89,49 +91,6 @@ namespace Spotify.Web.Controllers
             return Json(group);
         }
 
-
-
-
-        private void SetupApi() => SetupApi(out _);
-        private void SetupApi(out string username)
-        {
-            username = _username;
-            var token = this.Claim<string>(Names.AccessToken);
-
-            _spotify.BearerToken = token;
-
-            //_logger.Trace("{Username} is using the API with token {Token}", username, token);
-        }
-
-        //[Obsolete("Remove the Categories action method")]
-        //[HttpGet]
-        //public IActionResult Categories()
-        //{
-        //    SetupApi();
-
-        //    var categories = _spotify.GetAll(new GetCategories(), response => response.Categories)
-        //        .OrderBy(c => c.Name);
-
-        //    var grid = Helpers.ToArrayGrid(categories, 4);
-        //    return View(grid);
-        //}
-
-
-        [Ajax]
-        [HttpPost]
-        public IActionResult GetCurrentlyPlaying()
-        {
-            SetupApi(out var username);
-
-            var playbackState = _spotify.Get(new GetPlaybackState());
-
-            // This might also return the url to a playlist in the context object, if it's playing form a playlist.
-            // This can be used to "Add to currently playing playlist" feature.
-            //var currentlyPlaying = _spotify.Get(new GetCurrentlyPlaying());
-
-            return Json(playbackState);
-        }
-
         [HttpGet]
         public IActionResult Track(string trackId)
         {
@@ -140,10 +99,32 @@ namespace Spotify.Web.Controllers
             var track = _spotify.Get(new GetTrack { TrackId = trackId });
             _cache.Save(username, track);
 
-            return View("TrackView", new TrackViewModel
+            return View("TrackSingle", new TrackSingleViewModel
             {
                 Track = track
             });
+        }
+
+
+        [HttpGet]
+        [HttpPost]
+        public IActionResult RecentlyPlayed() // While not used yet, this will be used to create bulk playlists / groupings on your listen history
+        {
+            SetupApi(out var username);
+            var recentlyPlayed = _spotify.Get(new GetRecentlyPlayedTracks() { Limit = 50 });
+            return Json(recentlyPlayed);
+        }
+
+        [Ajax]
+        [HttpPost]
+        public IActionResult GetCurrentlyPlaying() // Possibly implement caching of the response to add "add currently playing to ___" feature
+        {
+            SetupApi(out var username);
+
+            var playbackState = _spotify.Get(new GetPlaybackState());
+            //var currentlyPlaying = _spotify.Get(new GetCurrentlyPlaying());
+
+            return Json(playbackState);
         }
 
         [Ajax]
