@@ -170,6 +170,7 @@ var spotify = {
     loadCurrentlyPlaying: function () {
         $.ajax({
             url: "/Spotify/GetCurrentlyPlaying",
+            type: "POST",
             success: function (response) {
                 console.debug("CurrentlyPlaying:", response);
                 var $currentlyPlaying = $("#currently-playing");

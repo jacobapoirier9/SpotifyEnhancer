@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using NLog;
 using ServiceStack;
 using ServiceStack.Data;
@@ -19,6 +20,8 @@ using System.Threading.Tasks;
 
 namespace Spotify.Web.Controllers
 {
+    public class AjaxAttribute : Attribute { }
+
     [Authorize]
     public class SpotifyController : Controller
     {
@@ -35,7 +38,7 @@ namespace Spotify.Web.Controllers
         }
 
 
-
+        [HttpGet]
         public IActionResult Index()
         {
             return View("PlaylistBuilder");
@@ -58,17 +61,23 @@ namespace Spotify.Web.Controllers
         [HttpGet]
         public IActionResult Groups() => View();
 
+        [Ajax]
+        [HttpPost]
         public IActionResult GetGroups()
         {
             var groups = _service.FindGroups(new FindGroups { Username = this.Claim<string>(Names.Username) });
             return Json(groups);
         }
 
+        [Ajax]
+        [HttpPost]
         public IActionResult SaveGroup(SaveGroup toSave)
         {
             var group = _service.SaveGroup(toSave);
+
             return Json(group);
         }
+
 
         private void SetupApi() => SetupApi(out _);
         private void SetupApi(out string username)
@@ -81,21 +90,22 @@ namespace Spotify.Web.Controllers
             _logger.Trace("{Username} is using the API with token {Token}", username, token);
         }
 
-        [Obsolete("Remove the Categories action method")]
-        [HttpGet]
-        public IActionResult Categories()
-        {
-            SetupApi();
+        //[Obsolete("Remove the Categories action method")]
+        //[HttpGet]
+        //public IActionResult Categories()
+        //{
+        //    SetupApi();
 
-            var categories = _spotify.GetAll(new GetCategories(), response => response.Categories)
-                .OrderBy(c => c.Name);
+        //    var categories = _spotify.GetAll(new GetCategories(), response => response.Categories)
+        //        .OrderBy(c => c.Name);
 
-            var grid = Helpers.ToArrayGrid(categories, 4);
-            return View(grid);
-        }
+        //    var grid = Helpers.ToArrayGrid(categories, 4);
+        //    return View(grid);
+        //}
 
 
-        [HttpGet]
+        [Ajax]
+        [HttpPost]
         public IActionResult GetCurrentlyPlaying()
         {
             SetupApi(out var username);
@@ -123,7 +133,7 @@ namespace Spotify.Web.Controllers
             });
         }
 
-
+        [Ajax]
         [HttpPost]
         public IActionResult GetGroupsForTrack()
         {

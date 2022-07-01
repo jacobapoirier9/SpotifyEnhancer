@@ -14,20 +14,13 @@ namespace Spotify.Web.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly IDbConnectionFactory _factory;
-
-        public HomeController(ILogger<HomeController> logger, IDbConnectionFactory factory)
-        {
-            _logger = logger;
-            _factory = factory;
-        }
-
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

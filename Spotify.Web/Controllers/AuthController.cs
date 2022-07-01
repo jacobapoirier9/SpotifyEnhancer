@@ -36,6 +36,7 @@ namespace Spotify.Web.Controllers
             _spotify = spotify;
         }
 
+        [HttpGet]
         public IActionResult Login(string code)
         {
             if (code is null)
