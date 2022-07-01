@@ -2,29 +2,22 @@
 
 namespace Spotify.Web.Models
 {
-    public class FindGroups : IHasUsername
+    public class FindGroups
     {
-        public string Username { get; set; }
     }
 
-    public class GetGroup : IHasUsername
+    public class GetGroup
     {
-        public string Username { get; set; }
-
         public int GroupId { get; set; }
     }
 
-    public class FindGroupRelationships : IHasUsername
+    public class FindGroupRelationships
     {
-        public string Username { get; set; }
-
         public List<string> ItemIds { get; set; }
     }
 
-    public class SaveGroup : IHasUsername
+    public class SaveGroup
     {
-        public string Username { get; set; }
-
         public string GroupName { get; set; }
 
         public string GroupDescription { get; set; }

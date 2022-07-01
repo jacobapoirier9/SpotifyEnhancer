@@ -42,12 +42,12 @@ namespace Spotify.Web.Services
             return query;
         }
 
-        private bool RequireAdmin(IHasUsername request) => IsAdminUser(request) ? true : throw new Exception($"User {request.Username} is not authorized for this operation");
+        private bool RequireAdmin(string username) => IsAdminUser(username) ? true : throw new Exception($"User {username} is not authorized for this operation");
 
-        private bool IsAdminUser(IHasUsername request)
+        private bool IsAdminUser(string username)
         {
             var adminUsers = new List<string>() { "jacobapoirier9" };
-            var isAdminUser = adminUsers.Contains(request.Username);
+            var isAdminUser = adminUsers.Contains(username);
             return isAdminUser;
         }
         
@@ -55,41 +55,41 @@ namespace Spotify.Web.Services
 
 
 
-        public List<FullGroup> FindGroups(FindGroups request)
+        public List<FullGroup> FindGroups(FindGroups request, string username)
         {
             using (var db = _factory.Open())
             {
-                var query = FindGroupsExpression(db, request.Username);
+                var query = FindGroupsExpression(db, username);
                 return db.Select<FullGroup>(query);
             }
         }
 
-        public FullGroup GetGroup(GetGroup request)
+        public FullGroup GetGroup(GetGroup request, string username)
         {
             using (var db = _factory.Open())
             {
-                var query = FindGroupsExpression(db, request.Username)
+                var query = FindGroupsExpression(db, username)
                     .Where(g => g.GroupId == request.GroupId);
 
                 return db.Single<FullGroup>(query);
             }
         }
-        public FullGroup SaveGroup(SaveGroup request)
+        public FullGroup SaveGroup(SaveGroup request, string username)
         {
             using (var db = _factory.Open())
             {
                 var id = (int)db.Insert(new DbGroup
                 {
-                    Username = request.Username,
+                    Username = username,
                     GroupName = request.GroupName,
                     GroupDescription = request.GroupDescription
                 }, true);
 
-                return GetGroup(new GetGroup { Username = request.Username, GroupId = id });
+                return GetGroup(new GetGroup { GroupId = id }, username);
             }
         }
 
-        public List<FullGroupRelationship> FindGroupRelationships(FindGroupRelationships request)
+        public List<FullGroupRelationship> FindGroupRelationships(FindGroupRelationships request, string username)
         {
             using (var db = _factory.Open())
             {
@@ -97,7 +97,7 @@ namespace Spotify.Web.Services
                 {
                     var query = db.From<DbGroupRelationship>()
                         .Join<DbGroup>((gr, g) => gr.GroupId == g.GroupId)
-                        .Where<DbGroupRelationship>(gr => Sql.In(gr.ItemId, request.ItemIds) && gr.Username == request.Username);
+                        .Where<DbGroupRelationship>(gr => Sql.In(gr.ItemId, request.ItemIds) && gr.Username == username);
 
                     var results = db.Select<FullGroupRelationship>(query);
 
@@ -107,39 +107,5 @@ namespace Spotify.Web.Services
                 return default;
             }
         }
-
-
-        /*
-         * //var track = _cache.Get<Track>(this.Claim<string>(Names.Username));
-
-            //using(var db = _factory.OpenDbConnection())
-            //{
-            //    var itemIds = new List<string>() { track.Id, track.Album.Id };
-            //    itemIds.AddRange(track.Artists.Select(a => a.Id));
-            //    itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
-
-            //    var query = db.From<DbGroupRelationship>()
-            //        .Join<DbGroup>((gr, g) => gr.GroupId == g.GroupId)
-            //        .Where<DbGroupRelationship>(gr => Sql.In(gr.ItemId, itemIds));
-
-            //    var results = db.Select<FullGroupRelationship>(query);
-
-            //    return Json(results.Select(r => new
-            //    {
-            //        r.GroupId,
-            //        r.GroupName,
-            //        r.ItemType,
-            //        r.ItemId,
-            //        AddedTo = r.ItemType switch
-            //        {
-            //            "track" => track.Name,
-            //            "album" => track.Album.Name,
-            //            "artist" => track.AllUniqueArtists.Select(artist => artist.Name).Join(","),
-
-            //            _ => throw new IndexOutOfRangeException(nameof(r.ItemType))
-            //        } + $" ({r.ItemType})"
-            //    }));
-            //}
-         */
     }
 }

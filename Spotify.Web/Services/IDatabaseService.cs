@@ -7,10 +7,10 @@ namespace Spotify.Web.Services
 {
     public interface IDatabaseService
     {
-        List<FullGroup> FindGroups(FindGroups request);
-        FullGroup GetGroup(GetGroup request);
-        FullGroup SaveGroup(SaveGroup request);
+        List<FullGroup> FindGroups(FindGroups request, string username);
+        FullGroup GetGroup(GetGroup request, string username);
+        FullGroup SaveGroup(SaveGroup request, string username);
 
-        List<FullGroupRelationship> FindGroupRelationships(FindGroupRelationships request);
+        List<FullGroupRelationship> FindGroupRelationships(FindGroupRelationships request, string username);
     }
 }

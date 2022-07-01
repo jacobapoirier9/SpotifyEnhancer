@@ -67,7 +67,7 @@ namespace Spotify.Web.Controllers
         [HttpPost]
         public IActionResult GetGroups()
         {
-            var groups = _service.FindGroups(new FindGroups { Username = _username });
+            var groups = _service.FindGroups(new FindGroups(), _username);
             return Json(groups);
         }
 
@@ -75,9 +75,11 @@ namespace Spotify.Web.Controllers
         [HttpPost]
         public IActionResult SaveGroup(SaveGroup toSave)
         {
-            var group = _service.SaveGroup(toSave);
+            var group = _service.SaveGroup(toSave, _username);
             return Json(group);
         }
+
+
 
 
         private void SetupApi() => SetupApi(out _);
@@ -144,7 +146,7 @@ namespace Spotify.Web.Controllers
             itemIds.AddRange(track.Artists.Select(a => a.Id));
             itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
 
-            var relationships = _service.FindGroupRelationships(new FindGroupRelationships { ItemIds = itemIds });
+            var relationships = _service.FindGroupRelationships(new FindGroupRelationships { ItemIds = itemIds }, _username);
 
             return Json(relationships.Select(r => new
             {
