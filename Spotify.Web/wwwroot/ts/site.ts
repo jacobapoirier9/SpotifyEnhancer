@@ -206,8 +206,6 @@ var helpers = {
 var router = {
     baseUrl: "https://localhost:5001",
     init: function (baseUrl) {
-
-        // This will handle differences between IIS Express and IIS
         if (baseUrl.endsWith("/"))
             router.baseUrl = baseUrl.substring(0, baseUrl.length - 1)
         else
