@@ -164,8 +164,11 @@ var helpers = {
     }
 };
 var spotify = {
-    clickCurrentlyPlaying: function (id) {
+    openTrack: function (id) {
         window.location.assign("/Spotify/Track?trackId=" + id);
+    },
+    openGroup: function (groupId) {
+        window.location.assign("/Spotify/Groups?groupId=" + groupId);
     },
     loadCurrentlyPlaying: function () {
         $.ajax({
@@ -190,7 +193,7 @@ var spotify = {
                         .attr("title", response.Item.Name)
                         .attr("width", 100)
                         .attr("height", 100)
-                        .click(function () { return spotify.clickCurrentlyPlaying(response.Item.Id); });
+                        .click(function () { return spotify.openTrack(response.Item.Id); });
                 }
             },
             error: function (error) {
@@ -203,77 +206,6 @@ var spotify = {
             }
         },
         track: {
-            init: function () {
-                var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.grid.groupRelationships.gridModel);
-                helpers.grid.resizeGridOnWindowResize($relationshipGrid);
-                spotify.grid.groupRelationships.loadFromServer();
-            }
-        },
-        groups: {
-            init: function () {
-                var $groupsGrid = $("#groupsGrid").jqGrid(spotify.grid.groups.gridModel);
-                helpers.grid.resizeGridOnWindowResize($groupsGrid);
-                helpers.modal.init("#groupModal", {
-                    title: "Create Group",
-                    mode: "create",
-                    formData: {
-                        groupName: "",
-                        groupDescription: ""
-                    },
-                    onsubmit: {
-                        create: function (form) {
-                            $.ajax({
-                                url: "/Spotify/SaveGroup",
-                                type: "POST",
-                                data: {
-                                    GroupName: form.groupName,
-                                    GroupDescription: form.groupDescription
-                                },
-                                success: function (response) {
-                                    spotify.grid.groups.loadFromServer();
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-        }
-    },
-    grid: {
-        groups: {
-            gridModel: helpers.createGridModel({
-                url: "/Spotify/GetGroups",
-                mtype: "POST",
-                datatype: "json",
-                idPrefix: "grp_",
-                colModel: [
-                    { hidden: true, name: "GroupId" },
-                    {
-                        label: "Actions", formatter: function (cellValue, info, model, action) {
-                            var html = "";
-                            return html;
-                        }
-                    },
-                    { name: "GroupName", label: "Group" },
-                    { name: "GroupDescription", label: "Description" },
-                    { name: "TrackCount", label: "Tracks" },
-                    { name: "AlbumCount", label: "Albums" },
-                    { name: "ArtistCount", label: "Artists" }
-                ]
-            }),
-            loadFromServer: function () {
-                var $groupsGrid = $("#groupsGrid");
-                $.ajax({
-                    type: "POST",
-                    url: "/Spotify/GetGroups",
-                    success: function (response) {
-                        $groupsGrid.setGridParam({ data: response });
-                        $groupsGrid.trigger("reloadGrid");
-                    }
-                });
-            }
-        },
-        groupRelationships: {
             gridModel: helpers.createGridModel({
                 datatype: "json",
                 idPrefix: "rel_",
@@ -296,6 +228,70 @@ var spotify = {
                     },
                     error: function (error) {
                         console.error(error);
+                    }
+                });
+            },
+            init: function () {
+                var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.page.track.gridModel);
+                helpers.grid.resizeGridOnWindowResize($relationshipGrid);
+                spotify.page.track.loadFromServer();
+            }
+        },
+        groups: {
+            gridModel: helpers.createGridModel({
+                url: "/Spotify/GetGroups",
+                mtype: "POST",
+                datatype: "json",
+                idPrefix: "grp_",
+                colModel: [
+                    { hidden: true, name: "GroupId" },
+                    { name: "GroupName", label: "Group" },
+                    { name: "GroupDescription", label: "Description" },
+                    {
+                        name: "TrackCount", label: "Tracks",
+                        formatter: function (cellValue, info, model, action) {
+                            return "<span>".concat(cellValue, "</span><span class='pull-right' onclick='spotify.openGroup(\"").concat(model.GroupId, "\")' style='margin: 5px;'><i class=\"fa fa-headphones\"></i></span>");
+                        }
+                    },
+                    { name: "AlbumCount", label: "Albums" },
+                    { name: "ArtistCount", label: "Artists" }
+                ]
+            }),
+            loadFromServer: function () {
+                var $groupsGrid = $("#groupsGrid");
+                $.ajax({
+                    type: "POST",
+                    url: "/Spotify/GetGroups",
+                    success: function (response) {
+                        $groupsGrid.setGridParam({ data: response });
+                        $groupsGrid.trigger("reloadGrid");
+                    }
+                });
+            },
+            init: function () {
+                var $groupsGrid = $("#groupsGrid").jqGrid(spotify.page.groups.gridModel);
+                helpers.grid.resizeGridOnWindowResize($groupsGrid);
+                helpers.modal.init("#groupModal", {
+                    title: "Create Group",
+                    mode: "create",
+                    formData: {
+                        groupName: "",
+                        groupDescription: ""
+                    },
+                    onsubmit: {
+                        create: function (form) {
+                            $.ajax({
+                                url: "/Spotify/SaveGroup",
+                                type: "POST",
+                                data: {
+                                    GroupName: form.groupName,
+                                    GroupDescription: form.groupDescription
+                                },
+                                success: function (response) {
+                                    spotify.page.groups.loadFromServer();
+                                }
+                            });
+                        }
                     }
                 });
             }

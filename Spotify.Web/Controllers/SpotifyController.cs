@@ -61,7 +61,17 @@ namespace Spotify.Web.Controllers
 
 
         [HttpGet]
-        public IActionResult Groups() => View();
+        public IActionResult Groups(int? groupId)
+        {
+            if (groupId.HasValue)
+            {
+                return View("SingleGroup", _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username));
+            }
+            else
+            {
+                return View("AllGroups");
+            }
+        }
 
         [Ajax]
         [HttpPost]
@@ -90,7 +100,7 @@ namespace Spotify.Web.Controllers
 
             _spotify.BearerToken = token;
 
-            _logger.Trace("{Username} is using the API with token {Token}", username, token);
+            //_logger.Trace("{Username} is using the API with token {Token}", username, token);
         }
 
         //[Obsolete("Remove the Categories action method")]
