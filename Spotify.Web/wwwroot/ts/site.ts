@@ -202,13 +202,53 @@ var helpers = {
     }
 }
 
-var spotify = {
 
+var router = {
+    baseUrl: "https://localhost:5001",
+    init: function (baseUrl) {
+
+        // This will handle differences between IIS Express and IIS
+        if (baseUrl.endsWith("/"))
+            router.baseUrl = baseUrl.substring(0, baseUrl.length - 1)
+        else
+            router.baseUrl = baseUrl;
+
+        console.debug(`Running on ${router.baseUrl}..`)
+    },
+    route: function (path: string, parms?: any) {
+        var url = path
+        if (parms != null && parms != undefined) {
+            url += "?"
+            for (var parm in parms) {
+                url += `${parm}=${parms[parm]}`
+            }
+        }
+
+        return router.baseUrl + url
+    },
+    open: function (path, parms?: any) {
+        var openTo = path.startsWith("http") ? path : router.route(path, parms)
+        window.location.assign(openTo)
+    }
+}
+
+
+
+
+
+
+
+
+
+
+var spotify = {
     openTrack(id: string) {
-        window.location.assign("/Spotify/Track?trackId=" + id)
+        router.open("/Spotify/Track", { trackId: id })
+        //window.location.assign("/Spotify/Track?trackId=" + id)
     },
     openGroup(groupId: string) {
-        window.location.assign("/Spotify/Groups?groupId=" + groupId)
+        router.open("/Spotify/Groups", { groupId: groupId })
+        //window.location.assign("/Spotify/Groups?groupId=" + groupId)
     },
 
 
@@ -264,7 +304,7 @@ var spotify = {
                 var $relationshipGrid = $("#relationship-grid")
                 $.ajax({
                     type: "POST",
-                    url: "/Spotify/GetGroupsForTrack",
+                    url: router.route("/Spotify/GetGroupsForTrack"),
                     success: (response) => {
                         console.debug("Success!", response)
                         $relationshipGrid.setGridParam({ data: response })
@@ -284,7 +324,7 @@ var spotify = {
         },
         groups: {
             gridModel: helpers.createGridModel({
-                url: "/Spotify/GetGroups",
+                url: router.route("/Spotify/GetGroups"),
                 mtype: "POST",
                 datatype: "json",
                 idPrefix: "grp_",
@@ -306,7 +346,7 @@ var spotify = {
                 var $groupsGrid = $("#groupsGrid")
                 $.ajax({
                     type: "POST",
-                    url: "/Spotify/GetGroups",
+                    url: router.route("/Spotify/GetGroups"),
                     success: (response) => {
                         $groupsGrid.setGridParam({ data: response })
                         $groupsGrid.trigger("reloadGrid")
@@ -327,7 +367,7 @@ var spotify = {
                     onsubmit: {
                         create: (form) => {
                             $.ajax({
-                                url: "/Spotify/SaveGroup",
+                                url: router.route("/Spotify/SaveGroup"),
                                 type: "POST",
                                 data: {
                                     GroupName: form.groupName,
