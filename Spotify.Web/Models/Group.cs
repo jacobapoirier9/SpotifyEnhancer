@@ -36,4 +36,19 @@ namespace Spotify.Web.Models
         public int AlbumCount { get; set; }
         public int ArtistCount { get; set; }
     }
+
+    [Schema("Spotify")]
+    [Alias("FindRelationships")]
+    public class FindRelationshipsResponse
+    {
+        public string Username { get; set; }
+
+        public string RelationshipId { get; set; }
+
+        public string GroupName { get; set; }
+
+        public string ItemType { get; set; }
+
+        public string ItemId { get; set; }
+    }
 }

@@ -141,7 +141,7 @@ namespace Spotify.Web.Controllers
 
             return Json(relationships.Select(r => new
             {
-                r.GroupId,
+                r.RelationshipId,
                 r.GroupName,
                 r.ItemType,
                 r.ItemId,

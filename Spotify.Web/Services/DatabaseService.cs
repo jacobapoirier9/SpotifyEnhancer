@@ -64,22 +64,19 @@ namespace Spotify.Web.Services
             }
         }
 
-        public List<FullGroupRelationship> FindGroupRelationships(FindGroupRelationships request, string username)
+        public List<FindRelationshipsResponse> FindGroupRelationships(FindGroupRelationships request, string username)
         {
             using (var db = _factory.Open())
             {
+                var query = db.From<FindRelationshipsResponse>()
+                    .Where(r => r.Username == username);
+
                 if (request.ItemIds is not null && request.ItemIds.Count > 0)
                 {
-                    var query = db.From<DbGroupRelationship>()
-                        .Join<DbGroup>((gr, g) => gr.GroupId == g.GroupId)
-                        .Where<DbGroupRelationship>(gr => Sql.In(gr.ItemId, request.ItemIds) && gr.Username == username);
-
-                    var results = db.Select<FullGroupRelationship>(query);
-
-                    return results;
+                    query.Where(r => Sql.In(r.ItemId, request.ItemIds));
                 }
 
-                return default;
+                return db.Select(query);
             }
         }
     }

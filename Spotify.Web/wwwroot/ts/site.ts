@@ -290,11 +290,11 @@ var spotify = {
         },
         track: {
             gridModel: helpers.createGridModel({
-                datatype: "json",
+                datatype: "local",
                 idPrefix: "rel_",
                 colModel: [
-                    { hidden: true, name: "ItemId" },
-                    { hidden: true, name: "GroupId" },
+                    //{ hidden: true, name: "ItemId" },
+                    //{ hidden: true, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
                     { name: "AddedTo", label: "Related From" }
                 ]

@@ -11,6 +11,6 @@ namespace Spotify.Web.Services
         FindGroupsResponse GetGroup(GetGroup request, string username);
         FindGroupsResponse SaveGroup(SaveGroup request, string username);
 
-        List<FullGroupRelationship> FindGroupRelationships(FindGroupRelationships request, string username);
+        List<FindRelationshipsResponse> FindGroupRelationships(FindGroupRelationships request, string username);
     }
 }
