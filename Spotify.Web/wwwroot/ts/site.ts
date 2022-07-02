@@ -267,6 +267,7 @@ var spotify = {
                     console.debug("Currently playing image is already set")
                 } else {
                     console.debug("Currently playing image needs to be set again")
+                    $currentlyPlaying.children("img").remove() 
                     $currentlyPlaying.attr("data-uri", response.Item.Uri)
                         .append("<img>").children("img")
                         .attr("src", response.Item.Album.Images[1].Url)
@@ -329,7 +330,7 @@ var spotify = {
                 colModel: [
                     { hidden: true, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
-                    { name: "GroupDescription", label: "Description" },
+                    //{ name: "GroupDescription", label: "Description" },
                     {
                         name: "TrackCount", label: "Tracks",
                         formatter: (cellValue, info, model, action) => {
