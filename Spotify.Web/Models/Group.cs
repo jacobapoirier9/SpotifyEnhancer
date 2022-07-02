@@ -30,10 +30,15 @@ namespace Spotify.Web.Models
     public class FindGroupsResponse
     {
         public string Username { get; set; }
+
         public int GroupId { get; set; }
+
         public string GroupName { get; set; }
+
         public int TrackCount { get; set; }
+
         public int AlbumCount { get; set; }
+
         public int ArtistCount { get; set; }
     }
 
@@ -44,6 +49,8 @@ namespace Spotify.Web.Models
         public string Username { get; set; }
 
         public string RelationshipId { get; set; }
+
+        public string GroupId { get; set; }
 
         public string GroupName { get; set; }
 

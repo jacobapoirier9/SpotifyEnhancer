@@ -1,4 +1,4 @@
-﻿use SteamRoller
+﻿use SteamRollerDev
 go
 
 -- Execute SQL without throwing an error.
@@ -75,6 +75,20 @@ as
 	(
 		sum(records.ItemCount) for records.ItemType in (track, album, artist)
 	) result;
+go
+
+create or alter view Spotify.FindRelationships
+as
+	select
+		gr.Username,
+		gr.RelationshipId,
+		g.GroupId,
+		g.GroupName,
+		gr.ItemType,
+		gr.ItemId
+	from Spotify.GroupRelationship gr
+	join Spotify.Groups g
+		on gr.GroupId = g.GroupId
 go
 
 declare @Username nvarchar(500) = 'jacobapoirier9'
