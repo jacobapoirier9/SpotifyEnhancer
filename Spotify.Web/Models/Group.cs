@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ServiceStack.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Spotify.Web.Models
 {
@@ -21,5 +22,18 @@ namespace Spotify.Web.Models
         public string GroupName { get; set; }
 
         public string GroupDescription { get; set; }
+    }
+
+
+    [Schema("Spotify")]
+    [Alias("FindGroups")]
+    public class FindGroupsResponse
+    {
+        public string Username { get; set; }
+        public int GroupId { get; set; }
+        public string GroupName { get; set; }
+        public int TrackCount { get; set; }
+        public int AlbumCount { get; set; }
+        public int ArtistCount { get; set; }
     }
 }

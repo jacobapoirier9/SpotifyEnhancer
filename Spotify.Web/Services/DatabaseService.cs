@@ -18,63 +18,38 @@ namespace Spotify.Web.Services
             _factory = factory;
         }
 
-        private SqlExpression<DbGroup> FindGroupsExpression(IDbConnection db, string username)
-        {
-            var tableAlias = db.GetDialectProvider().GetQuotedTableName(typeof(DbGroupRelationship).GetModelMetadata());
-            var query = db.From<DbGroup>()
-                .LeftJoin<DbGroup, DbGroupRelationship>((g, gr) => g.Username == gr.Username && g.GroupId == gr.GroupId)
-                .GroupBy<DbGroup>(g => new
-                {
-                    g.GroupId,
-                    g.GroupName,
-                    g.GroupDescription
-                })
-                .Select<DbGroup, DbGroupRelationship>((g, gr) => new
-                {
-                    GroupId = g.GroupId,
-                    GroupName = g.GroupName,
-                    GroupDescription = g.GroupDescription,
-                    TrackCount = Sql.Sum($"case when {tableAlias}.ItemType = 'track' then 1 else 0 end"),
-                    AlbumCount = Sql.Sum($"case when {tableAlias}.ItemType = 'album' then 1 else 0 end"),
-                    ArtistCount = Sql.Sum($"case when {tableAlias}.ItemType = 'artist' then 1 else 0 end")
-                });
+        //private bool RequireAdmin(string username) => IsAdminUser(username) ? true : throw new Exception($"User {username} is not authorized for this operation");
 
-            return query;
-        }
-
-        private bool RequireAdmin(string username) => IsAdminUser(username) ? true : throw new Exception($"User {username} is not authorized for this operation");
-
-        private bool IsAdminUser(string username)
-        {
-            var adminUsers = new List<string>() { "jacobapoirier9" };
-            var isAdminUser = adminUsers.Contains(username);
-            return isAdminUser;
-        }
+        //private bool IsAdminUser(string username)
+        //{
+        //    var adminUsers = new List<string>() { "jacobapoirier9" };
+        //    var isAdminUser = adminUsers.Contains(username);
+        //    return isAdminUser;
+        //}
         
 
-
-
-
-        public List<FullGroup> FindGroups(FindGroups request, string username)
+        public List<FindGroupsResponse> FindGroups(FindGroups request, string username)
         {
             using (var db = _factory.Open())
             {
-                var query = FindGroupsExpression(db, username);
-                return db.Select<FullGroup>(query);
+                var query = db.From<FindGroupsResponse>()
+                    .Where(g => g.Username == username);
+
+                return db.Select(query);
             }
         }
 
-        public FullGroup GetGroup(GetGroup request, string username)
+        public FindGroupsResponse GetGroup(GetGroup request, string username)
         {
             using (var db = _factory.Open())
             {
-                var query = FindGroupsExpression(db, username)
-                    .Where(g => g.GroupId == request.GroupId);
+                var query = db.From<FindGroupsResponse>()
+                    .Where(g => g.Username == username);
 
-                return db.Single<FullGroup>(query);
+                return db.Single(query);
             }
         }
-        public FullGroup SaveGroup(SaveGroup request, string username)
+        public FindGroupsResponse SaveGroup(SaveGroup request, string username)
         {
             using (var db = _factory.Open())
             {
