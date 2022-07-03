@@ -13,8 +13,9 @@ namespace Spotify.Web.Models
         public int GroupId { get; set; }
     }
 
-    public class FindGroupRelationships
+    public class FindItems
     {
+        public int? GroupId { get; set; }
         public List<string> ItemIds { get; set; }
     }
 
@@ -43,7 +44,7 @@ namespace Spotify.Web.Models
 
     [Schema("Spotify")]
     [Alias("FindRelationships")]
-    public class FindRelationshipsResponse
+    public class FindItemsResponse
     {
         public string Username { get; set; }
 

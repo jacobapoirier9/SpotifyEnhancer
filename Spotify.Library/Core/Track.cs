@@ -14,6 +14,7 @@ namespace Spotify.Library.Core
     [Route("/tracks")]
     public class GetTracks : IReturn<MultipleTracksWrapper>, IGet
     {
+        [DataMember(Name = "ids")]
         public List<string> Ids { get; set; }
     }
 

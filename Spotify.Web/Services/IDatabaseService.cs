@@ -1,5 +1,4 @@
-﻿using Spotify.Web.Database;
-using Spotify.Web.Models;
+﻿using Spotify.Web.Models;
 using System.Collections.Generic;
 
 
@@ -11,6 +10,6 @@ namespace Spotify.Web.Services
         FindGroupsResponse GetGroup(GetGroup request, string username);
         FindGroupsResponse SaveGroup(SaveGroup request, string username);
 
-        List<FindRelationshipsResponse> FindGroupRelationships(FindGroupRelationships request, string username);
+        List<FindItemsResponse> FindItems(FindItems request, string username);
     }
 }
