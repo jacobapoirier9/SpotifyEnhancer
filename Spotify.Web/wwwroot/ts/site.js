@@ -249,23 +249,55 @@ var spotify = {
                     },
                     { name: "AlbumCount", label: "Albums" },
                     { name: "ArtistCount", label: "Artists" }
-                ]
+                ],
+                jsonReader: {
+                    root: 'Rows',
+                    page: 'Page',
+                    total: 'Total',
+                    records: 'Records',
+                    repeatitems: false,
+                    /** @ts-ignore */
+                    userdata: 'UserData',
+                    id: 'Id',
+                    subgrid: {
+                        root: 'Rows',
+                        repeatitems: false
+                    }
+                },
+                subGrid: true,
+                subGridOptions: {
+                    expandOnLoad: false,
+                    plusicon: 'fa fa-angle-right',
+                    minusicon: 'fa fa-angle-down',
+                    openicon: 'fa fa-bars'
+                },
+                subGridRowExpanded: function (subGridId, rowId) {
+                    var subGridTableId = subGridId + "_t";
+                    $("#" + subGridId).html("<table id='" + subGridTableId + "'></table>");
+                    console.debug(subGridId, rowId);
+                    var row = $("#relationship-grid").jqGrid("getLocalRow", rowId);
+                    console.debug(row);
+                    $("#" + subGridTableId).jqGrid({
+                        url: router.route("/Spotify/GetItemsForGroup"),
+                        mtype: "POST",
+                        postData: {
+                            groupId: row.GroupId
+                        },
+                        colModel: [
+                            {}
+                        ],
+                        emptyrecords: 'No records to display',
+                        loadonce: true,
+                        sortable: true,
+                        forceFit: true,
+                        //shrinkToFit: true,
+                        //sortname: 'PromotionId',
+                        sortorder: 'asc',
+                        styleUI: 'Bootstrap',
+                        viewrecords: true
+                    });
+                }
             }),
-            //loadFromServer() {
-            //    var $relationshipGrid = $("#relationship-grid")
-            //    $.ajax({
-            //        type: "POST",
-            //        url: router.route("/Spotify/GetGroupsForCurrentTrack"),
-            //        success: (response) => {
-            //            console.debug("Success!", response)
-            //            //$relationshipGrid.setGridParam({ data: response })
-            //            //$relationshipGrid.trigger("reloadGrid")
-            //        },
-            //        error: (error) => {
-            //            console.error(error)
-            //        }
-            //    })
-            //},
             init: function () {
                 var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.page.track.gridModel);
                 helpers.grid.resizeGridOnWindowResize($relationshipGrid);

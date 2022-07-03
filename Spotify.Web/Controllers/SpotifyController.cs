@@ -139,5 +139,12 @@ namespace Spotify.Web.Controllers
             var groups = _service.FindGroups(new FindGroups { ItemIds = itemIds }, _username);
             return Json(groups);
         }
+
+        [Ajax]
+        public IActionResult GetItemsForGroup(int groupId)
+        {
+            var track = _cache.Get<Track>(_username);
+            return Json(new List<object>());
+        }
     }
 }
