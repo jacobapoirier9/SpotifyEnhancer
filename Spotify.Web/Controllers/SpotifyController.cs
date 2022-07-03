@@ -71,7 +71,7 @@ namespace Spotify.Web.Controllers
             }
             else
             {
-                return View("GroupeMultiple");
+                return View("GroupsMultiple");
             }
         }
 
@@ -126,35 +126,18 @@ namespace Spotify.Web.Controllers
 
             return Json(playbackState);
         }
-
+        
         [Ajax]
-        [HttpPost]
-        public IActionResult GetGroupsForTrack()
+        public IActionResult GetGroupsForCurrentTrack()
         {
-            var track = _cache.Get<Track>(this.Claim<string>(Names.Username));
+            var track = _cache.Get<Track>(_username);
 
             var itemIds = new List<string>() { track.Id, track.Album.Id };
             itemIds.AddRange(track.Artists.Select(a => a.Id));
             itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
 
-            var relationships = _service.FindGroupRelationships(new FindGroupRelationships { ItemIds = itemIds }, _username);
-
-            return Json(relationships.Select(r => new
-            {
-                r.RelationshipId,
-                r.GroupId,
-                r.GroupName,
-                r.ItemType,
-                r.ItemId,
-                AddedTo = r.ItemType switch
-                {
-                    "track" => track.Name,
-                    "album" => track.Album.Name,
-                    "artist" => track.AllUniqueArtists.Select(artist => artist.Name).Join(","),
-
-                    _ => throw new IndexOutOfRangeException(nameof(r.ItemType))
-                } + $" ({r.ItemType})"
-            }));
+            var groups = _service.FindGroups(new FindGroups { ItemIds = itemIds }, _username);
+            return Json(groups);
         }
     }
 }

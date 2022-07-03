@@ -34,6 +34,15 @@ namespace Spotify.Web.Services
             {
                 var query = db.From<FindGroupsResponse>()
                     .Where(g => g.Username == username);
+                
+                if (request.ItemIds is not null && request.ItemIds.Count > 0)
+                {
+                    var subQuery = db.From<DbGroupRelationship>()
+                        .Where(gr => Sql.In(gr.ItemId, request.ItemIds))
+                        .Select(gr => gr.GroupId);
+
+                    query.Where(g => Sql.In(g.GroupId, subQuery));
+                }
 
                 return db.Select(query);
             }
@@ -56,8 +65,7 @@ namespace Spotify.Web.Services
                 var id = (int)db.Insert(new DbGroup
                 {
                     Username = username,
-                    GroupName = request.GroupName,
-                    GroupDescription = request.GroupDescription
+                    GroupName = request.GroupName
                 }, true);
 
                 return GetGroup(new GetGroup { GroupId = id }, username);

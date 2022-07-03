@@ -5,6 +5,7 @@ namespace Spotify.Web.Models
 {
     public class FindGroups
     {
+        public List<string> ItemIds { get; set; }
     }
 
     public class GetGroup
@@ -20,8 +21,6 @@ namespace Spotify.Web.Models
     public class SaveGroup
     {
         public string GroupName { get; set; }
-
-        public string GroupDescription { get; set; }
     }
 
 

@@ -303,11 +303,11 @@ var spotify = {
                 var $relationshipGrid = $("#relationship-grid")
                 $.ajax({
                     type: "POST",
-                    url: router.route("/Spotify/GetGroupsForTrack"),
+                    url: router.route("/Spotify/GetGroupsForCurrentTrack"),
                     success: (response) => {
                         console.debug("Success!", response)
-                        $relationshipGrid.setGridParam({ data: response })
-                        $relationshipGrid.trigger("reloadGrid")
+                        //$relationshipGrid.setGridParam({ data: response })
+                        //$relationshipGrid.trigger("reloadGrid")
                     },
                     error: (error) => {
                         console.error(error)
@@ -330,7 +330,6 @@ var spotify = {
                 colModel: [
                     { hidden: true, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
-                    //{ name: "GroupDescription", label: "Description" },
                     {
                         name: "TrackCount", label: "Tracks",
                         formatter: (cellValue, info, model, action) => {
