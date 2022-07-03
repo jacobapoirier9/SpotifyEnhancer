@@ -290,35 +290,43 @@ var spotify = {
         },
         track: {
             gridModel: helpers.createGridModel({
-                datatype: "local",
-                idPrefix: "rel_",
+                url: router.route("/Spotify/GetGroupsForCurrentTrack"),
+                mtype: "POST",
+                datatype: "json",
+                idPrefix: "grp_",
                 colModel: [
-                    //{ hidden: true, name: "ItemId" },
-                    //{ hidden: true, name: "GroupId" },
+                    { hidden: true, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
-                    { name: "AddedTo", label: "Related From" }
+                    {
+                        name: "TrackCount", label: "Tracks",
+                        formatter: (cellValue, info, model, action) => {
+                            return `<span>${cellValue}</span><span class='pull-right' onclick='spotify.openGroup("${model.GroupId}")' style='margin: 5px;'><i class="fa fa-headphones"></i></span>`
+                        }
+                    },
+                    { name: "AlbumCount", label: "Albums" },
+                    { name: "ArtistCount", label: "Artists" }
                 ]
             }),
-            loadFromServer() {
-                var $relationshipGrid = $("#relationship-grid")
-                $.ajax({
-                    type: "POST",
-                    url: router.route("/Spotify/GetGroupsForCurrentTrack"),
-                    success: (response) => {
-                        console.debug("Success!", response)
-                        //$relationshipGrid.setGridParam({ data: response })
-                        //$relationshipGrid.trigger("reloadGrid")
-                    },
-                    error: (error) => {
-                        console.error(error)
-                    }
-                })
-            },
+            //loadFromServer() {
+            //    var $relationshipGrid = $("#relationship-grid")
+            //    $.ajax({
+            //        type: "POST",
+            //        url: router.route("/Spotify/GetGroupsForCurrentTrack"),
+            //        success: (response) => {
+            //            console.debug("Success!", response)
+            //            //$relationshipGrid.setGridParam({ data: response })
+            //            //$relationshipGrid.trigger("reloadGrid")
+            //        },
+            //        error: (error) => {
+            //            console.error(error)
+            //        }
+            //    })
+            //},
             init() {
                 var $relationshipGrid = $("#relationship-grid").jqGrid(spotify.page.track.gridModel)
                 helpers.grid.resizeGridOnWindowResize($relationshipGrid)
 
-                spotify.page.track.loadFromServer()
+                //spotify.page.track.loadFromServer()
             }
         },
         groups: {
