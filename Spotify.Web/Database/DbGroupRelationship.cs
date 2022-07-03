@@ -1,4 +1,5 @@
 ﻿using ServiceStack.DataAnnotations;
+using Spotify.Library.Core;
 
 namespace Spotify.Web.Database
 {
@@ -10,7 +11,7 @@ namespace Spotify.Web.Database
 
         public int GroupId { get; set; }
 
-        public string ItemType { get; set; }
+        public ItemType ItemType { get; set; }
 
         public string ItemId { get; set; }
     }

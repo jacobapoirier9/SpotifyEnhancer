@@ -151,9 +151,9 @@ namespace Spotify.Web.Controllers
 
             var relatedItems = _service.FindItems(new FindItems { GroupId = groupId, ItemIds = itemIds }, _username);
 
-            var trackIds = relatedItems.Where(ri => ri.ItemType == "track").Select(t => t.ItemId).ToList();
-            var albumIds = relatedItems.Where(ri => ri.ItemType == "album").Select(t => t.ItemId).ToList();
-            var artistIds = relatedItems.Where(ri => ri.ItemType == "artist").Select(t => t.ItemId).ToList();
+            var trackIds = relatedItems.Where(ri => ri.ItemType == ItemType.Track).Select(t => t.ItemId).ToList();
+            var albumIds = relatedItems.Where(ri => ri.ItemType == ItemType.Album).Select(t => t.ItemId).ToList();
+            var artistIds = relatedItems.Where(ri => ri.ItemType == ItemType.Artist).Select(t => t.ItemId).ToList();
 
             var tracks = trackIds.Count > 0 ? _spotify.Get(new GetTracks { Ids = trackIds }).Tracks : new List<Track>();
             var albums = albumIds.Count > 0 ? _spotify.Get(new GetAlbums { Ids = albumIds }).Albums : new List<Album>();

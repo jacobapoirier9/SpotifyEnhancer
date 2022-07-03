@@ -25,8 +25,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -50,6 +48,7 @@ namespace Spotify.Web
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                    options.JsonSerializerOptions.Converters.Add(new ItemTypeJsonConverter());
                 });
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
