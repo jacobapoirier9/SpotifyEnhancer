@@ -66,8 +66,11 @@ namespace Spotify.Library.Services
                             RefreshToken = rawToken.RefreshToken,
                             Expiration = DateTime.Now.AddSeconds(rawToken.ExpiresIn)
                         };
-
-                        _logger.Trace("Token exchange was successful. New token: {Token}", rawToken.AccessToken);
+                        
+                        if (_configuration.GetValue<bool>("DeepLogging:API"))
+                        {
+                            _logger.Trace("Token exchange was successful. New token: {Token}", rawToken.AccessToken);
+                        }
 
                         return token;
                     }
