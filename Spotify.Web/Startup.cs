@@ -119,9 +119,11 @@ namespace Spotify.Web
                                 }
                         ) :  
                         null,
-                ExceptionFilter = (exception, response, str, type) => 
+                ExceptionFilter = (exception, response, str, type) =>
                 {
-                    LogResponse((HttpWebResponse)response);
+                    var httpResponse = (HttpWebResponse)response;
+                    _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)httpResponse.StatusCode, httpResponse.StatusDescription, httpResponse.ResponseUri);
+
                     _logger.Error("HTTP: {Error}", exception.Message);
 
                     using (var stream = response.GetResponseStream())
@@ -142,22 +144,6 @@ namespace Spotify.Web
                     }
                 }
             });
-        }
-        
-        private void LogResponse(HttpWebResponse response)
-        {
-            _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
-
-            /// This option is only needed when trying to debug the exact response.
-            /// This can most likely also be achieved through Spotify's try it yourself portal.
-            if (_configuration.GetValue<bool>("DeepLogging:ReadApiStream"))
-            {
-                using (var stream = response.GetResponseStream())
-                using (var reader = new StreamReader(stream))
-                {
-                    _logger.Trace(reader.ReadToEnd());
-                }
-            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
