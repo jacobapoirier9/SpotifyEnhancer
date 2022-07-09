@@ -11,6 +11,6 @@ namespace Spotify.Web2.Controllers
 
         public IActionResult InternalServerError() => View();
 
-        public IActionResult NotFound => View();
+        public IActionResult NotFound() => View();
     }
 }
