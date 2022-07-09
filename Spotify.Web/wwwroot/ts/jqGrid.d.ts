@@ -47,7 +47,7 @@ interface JqGridOptions {
 
 
 
-
+    shrinkToFit?: boolean
 
 
 

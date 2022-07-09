@@ -274,28 +274,31 @@ var spotify = {
                 subGridRowExpanded: function (subGridId, rowId) {
                     var subGridTableId = subGridId + "_t";
                     $("#" + subGridId).html("<table id='" + subGridTableId + "'></table>");
-                    console.debug(subGridId, rowId);
+                    var $subGrid = $("#" + subGridTableId);
                     var row = $("#relationship-grid").jqGrid("getLocalRow", rowId);
                     console.debug(row);
-                    $("#" + subGridTableId).jqGrid({
+                    $subGrid.jqGrid({
                         url: router.route("/Spotify/GetItemsForGroup"),
                         mtype: "POST",
+                        datatype: "json",
                         postData: {
                             groupId: row.GroupId
                         },
                         colModel: [
-                            {}
+                            { hidden: true, name: "Id" },
+                            { name: "Name" },
+                            { name: "Type" }
                         ],
                         emptyrecords: 'No records to display',
                         loadonce: true,
                         sortable: true,
                         forceFit: true,
                         //shrinkToFit: true,
-                        //sortname: 'PromotionId',
                         sortorder: 'asc',
                         styleUI: 'Bootstrap',
                         viewrecords: true
                     });
+                    helpers.grid.setGridWidthToParentWidth($subGrid);
                 }
             }),
             init: function () {

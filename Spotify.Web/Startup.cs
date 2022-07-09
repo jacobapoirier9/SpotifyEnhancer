@@ -20,6 +20,7 @@ using Spotify.Library.Services;
 using Spotify.Web.Services;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -72,9 +73,20 @@ namespace Spotify.Web
             services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(_configuration["ConnectionStrings:SteamRoller"], SqlServerDialect.Provider));
             if (_configuration.GetValue<bool>("DeepLogging:SQL"))
             {
-                OrmLiteConfig.BeforeExecFilter = command =>
+                OrmLiteConfig.BeforeExecFilter = sqlCmd =>
                 {
-                    _logger.Trace("Running SQL: {NewLine} {SQL}", Environment.NewLine, command.CommandText);
+                    var builder = new System.Text.StringBuilder();
+                    builder.AppendLine();
+                    builder.AppendLine(sqlCmd.Connection.ConnectionString);
+                    foreach (SqlParameter parm in sqlCmd.Parameters)
+                    {
+                        builder.AppendLine($"declare {parm.ParameterName} {parm.SqlDbType} = {(parm.SqlDbType == System.Data.SqlDbType.DateTime ? "\"" + parm.Value + "\"" : parm.Value)}");
+                    }
+                    builder.AppendLine();
+                    builder.AppendLine(sqlCmd.CommandText);
+                    builder.AppendLine();
+                    Console.WriteLine(builder.ToString());
+                    _logger.Trace("Running SQL: {NewLine} {SQL}", Environment.NewLine, builder.ToString());
                 };
             }
 
