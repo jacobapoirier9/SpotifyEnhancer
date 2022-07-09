@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Spotify.Web2
+namespace Spotify.Web
 {
     public class Program
     {

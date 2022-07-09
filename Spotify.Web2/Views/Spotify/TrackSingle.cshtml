@@ -1,0 +1,26 @@
+﻿@model Track
+@{
+    ViewData["Title"] = "Track";
+}
+
+<div class="box">
+    <div class="box-primary">
+        <div class="box-header">
+            <h3>@Model.Name - @Model.Artists.FirstOrDefault().Name</h3>
+            <h4 class="pull-right">@Model.Album.Name</h4>
+        </div>
+        <div class="box-body">
+            <div class="grid-container">
+                <table id="relationship-grid"></table>
+            </div>
+            @*<pre>@Helpers.PrettyPrintJson(ServiceStack.StringExtensions.ToJson(Model))</pre>*@
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(spotify.page.track.init)
+    </script>
+} 

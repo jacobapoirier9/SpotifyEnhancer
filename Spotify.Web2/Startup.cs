@@ -14,17 +14,15 @@ using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using Spotify.Library;
 using Spotify.Library.Core;
+using Spotify.Library.Services;
+using Spotify.Web.Services;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Spotify.Web2
+namespace Spotify.Web
 {
     public class Startup
     {
@@ -75,8 +73,11 @@ namespace Spotify.Web2
                     "/lib/icheck/dist/icheck.js",
                     "/lib/validator/dist/validator.js",
                     "/lib/inputmask/dist/jquery.inputmask.bundle.js",
+                    "/lib/jqgrid/grid.locale-en.js",
+                    "/lib/jqgrid/jquery.jqGrid.js",
                     "/js/adminlte.js",
-                    "/js/init.js"
+                    "/js/init.js",
+                    "/js/spotify.js"
                 });
             });
 
@@ -118,9 +119,9 @@ namespace Spotify.Web2
                 };
             }
 
-            //services.AddSingleton<ICustomCache, CustomFileSystemCache>();
-            //services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
-            //services.AddSingleton<IDatabaseService, DatabaseService>();
+            services.AddSingleton<ICustomCache, CustomFileSystemCache>();
+            services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
+            services.AddSingleton<IDatabaseService, DatabaseService>();
 
 
             services.AddSingleton<IServiceClient>(new JsonServiceClient
@@ -205,30 +206,6 @@ namespace Spotify.Web2
             });
 
             _logger.Debug("URLs: {URLs}", app.ApplicationServices.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.JoinToString(", "));
-        }
-    }
-
-    public class ItemTypeJsonConverter : JsonConverter<ItemType>
-    {
-        public override ItemType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            // Most of JSON reading is handled by ServiceStack which already has the capabilities of going from string to enum.
-            // Leaving this not implemented as I should not need to implement this one.
-            throw new NotImplementedException();
-        }
-
-        public override void Write(Utf8JsonWriter writer, ItemType value, JsonSerializerOptions options)
-        {
-            var stringValue = value switch
-            {
-                ItemType.Track => nameof(ItemType.Track),
-                ItemType.Album => nameof(ItemType.Album),
-                ItemType.Artist => nameof(ItemType.Artist),
-
-                _ => throw new IndexOutOfRangeException(nameof(ItemType))
-            };
-
-            writer.WriteStringValue(stringValue);
         }
     }
 }

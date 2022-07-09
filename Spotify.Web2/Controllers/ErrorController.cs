@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Spotify.Web2.Controllers
+namespace Spotify.Web.Controllers
 {
     public class ErrorController : Controller
     {
