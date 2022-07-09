@@ -2,7 +2,7 @@
 using Spotify.Library.Core;
 using System.Collections.Generic;
 
-namespace Spotify.Web.Models
+namespace Spotify.Web.Services
 {
     public class FindGroups
     {
