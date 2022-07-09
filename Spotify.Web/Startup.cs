@@ -93,11 +93,54 @@ namespace Spotify.Web
             services.AddSingleton<ICustomCache, CustomFileSystemCache>();
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
             services.AddSingleton<IDatabaseService, DatabaseService>();
+
+
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {
                 BaseUri = _configuration.GetValue<string>("Spotify:ApiUri"),
-                ResponseFilter = _configuration.GetValue<bool>("DeepLogging:API") ? LogResponse : null,
-                ExceptionFilter = LogErrorResponse
+
+                // Moving all the logic here, so that all settings are read at start up, rather than with each Spotify request.
+                ResponseFilter = 
+                    _configuration.GetValue<bool>("DeepLogging:API") ?
+                        (
+                            _configuration.GetValue<bool>("DeepLogging:ReadApiStream") ?
+                                (response) => 
+                                {
+                                    _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
+                                    using (var stream = response.GetResponseStream())
+                                    using (var reader = new StreamReader(stream))
+                                    {
+                                        _logger.Trace(reader.ReadToEnd());
+                                    }
+                                } :
+                                (response) => 
+                                {
+                                    _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
+                                }
+                        ) :  
+                        null,
+                ExceptionFilter = (exception, response, str, type) => 
+                {
+                    LogResponse((HttpWebResponse)response);
+                    _logger.Error("HTTP: {Error}", exception.Message);
+
+                    using (var stream = response.GetResponseStream())
+                    using (var reader = new StreamReader(stream))
+                    {
+                        var json = reader.ReadToEnd();
+
+                        if (json is null) // An error occurred before reaching the endpoint (HTTP Error)
+                        {
+                            throw exception;
+                        }
+                        else // An error occurred after reaching the endpoint (Spotify Error)
+                        {
+                            var error = json.FromJson<ErrorWrapper>();
+                            _logger.Error("Spotify: {Error}", error.Error.Message);
+                            throw new Exception(error.Error.Message);
+                        }
+                    }
+                }
             });
         }
         
@@ -113,29 +156,6 @@ namespace Spotify.Web
                 using (var reader = new StreamReader(stream))
                 {
                     _logger.Trace(reader.ReadToEnd());
-                }
-            }
-        }
-
-        private object LogErrorResponse(WebException exception, WebResponse response, string str, Type type)
-        {
-            LogResponse((HttpWebResponse)response);
-            _logger.Error("HTTP: {Error}", exception.Message);
-
-            using (var stream = response.GetResponseStream())
-            using (var reader = new StreamReader(stream))
-            {
-                var json = reader.ReadToEnd();
-
-                if (json is null) // An error occurred before reaching the endpoint (HTTP Error)
-                {
-                    throw exception;
-                }
-                else // An error occurred after reaching the endpoint (Spotify Error)
-                {
-                    var error = json.FromJson<ErrorWrapper>();
-                    _logger.Error("Spotify: {Error}", error.Error.Message);
-                    throw new Exception(error.Error.Message);
                 }
             }
         }
