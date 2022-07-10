@@ -61,68 +61,7 @@
         </div>
     </div>
 </div>
-@*<div class="row">
-        <div class="col-xs-12 col-md-4">
-            <div class="box box-default">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Track</h3>
-                    <span class="pull-right">@(Model.IsLiked ? "liked" : "")</span>
-                </div>
-                <div class="box-body">
-                    <div class="form-group">
-                        <span>@Model.Track.Name</span>
-                    </div>
-                    <hr />
-                    <div class="grid-container">
-                        <table id="trackGroupsGrid"></table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-4">
-            <div class="box box-default">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Album</h3>
-                </div>
-                <div class="box-body">
-                    <div class="col-md-12 col-sm-12">
-                        <span class="no-te">@Model.Track.Album.Name</span>
-                        <img class="pull-right" src="@Model.Track.Album.Images[2].Url" />
-                    </div>
-                    <br />
-                    <br />
-                    <hr />
-                    <div class="col-md-12 col-sm-12">
-                        <div class="grid-container">
-                            <table id="albumGroupsGrid"></table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-4">
-            <div class="box box-default">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Artists</h3>
-                </div>
-                <div class="box-body">
-                    @{
-                        var uniqueIds = Model.Track.AllUniqueArtists.Select(a => a.Id).ToList();
-                        var artists = _spotify.Get(new GetArtists { Ids = uniqueIds }).Artists;
-                    }
 
-                    @foreach (var artist in artists)
-                    {
-                        <div class="col-md-12 col-sm-12" style="margin-bottom: 5px;">
-                            <span>@artist.Name</span>
-                            <img class="pull-right" src="@artist.Images[2].Url" width="64" height="64" />
-                        </div>
-                        <br />
-                    }
-                </div>
-            </div>
-        </div>
-    </div>*@
 <div class="row">
     <div class="col-xs-12 col-md-12">
         <div class="box box-default">
@@ -131,11 +70,6 @@
             </div>
             <div class="box-body">
                 @inject ServiceStack.IServiceClient spotify
-                @*<pre>@(spotify.Get<string>($"/audio-features/{Model.Track.Id}"))</pre>
-                    <pre>@(spotify.Get<string>($"/tracks/{Model.Track.Id}"))</pre>
-                    <pre>@(spotify.Get<string>($"/recommendations?seed_tracks={Model.Track.Id}"))</pre>*@
-
-                @*<pre>@(_spotify.Get<string>(new GetArtists { Ids = uniqueIds }))</pre>*@
             </div>
         </div>
     </div>

@@ -129,23 +129,10 @@ var spotify = {
                 var track = JSON.parse($("#trackJson").val()).Track;
                 console.debug("Viewing Track", track);
                 var $trackGroupsGrid = $("#trackGroupsGrid").jqGrid(gridModels.group({
-                    url: router.route("/Spotify/GetGroupsRelatedTo"),
-                    mtype: "POST",
-                    postData: {
-                        id: track.id
-                    }
-                }));
-                var $albumGroupsGrid = $("#albumGroupsGrid").jqGrid(gridModels.group({
-                    url: router.route("/Spotify/GetGroupsRelatedTo"),
-                    mtype: "POST",
-                    postData: {
-                        id: track.album.id
-                    }
+                    url: router.route("/Spotify/GetGroupsForTrackFromCache"),
+                    mtype: "POST"
                 }));
                 helpers.grid.setGridWidthToParentWidth($trackGroupsGrid);
-                helpers.grid.setGridWidthToParentWidth($albumGroupsGrid);
-                //helpers.grid.resizeGridOnWindowResize($trackGroupsGrid)
-                //helpers.grid.resizeGridOnWindowResize($albumGroupsGrid)
             }
         },
         groups: {

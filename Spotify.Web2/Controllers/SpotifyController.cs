@@ -110,9 +110,9 @@ namespace Spotify.Web.Controllers
             return Json(groups);
         }
 
-        public IActionResult GetGroupsRelatedTo(string id)
+        public IActionResult GetGroupsForTrackFromCache()
         {
-            var memberedGroups = _cache.Get<List<GroupMembershipsForResponse>>(_username, $"MembershipsFor.{id}");
+            var memberedGroups = _cache.Get<List<GroupMembershipsForResponse>>(_username, nameof(GetGroupsForTrackFromCache));
             return Json(memberedGroups);
         }
 
@@ -154,28 +154,16 @@ namespace Spotify.Web.Controllers
 
             var groups = _database.FindGroups(new FindGroups { }, _username);
 
-            //var trackGroups = _database.FindGroups(new FindGroups { ItemIds = new List<string>() { track.Id } }, _username).Select(g => g.GroupId).ToList();
-            //var albumGroups = _database.FindGroups(new FindGroups { ItemIds = new List<string>() { track.Album.Id } }, _username).Select(g => g.GroupId).ToList();
-            //var artistGroups = _database.FindGroups(new FindGroups { ItemIds = track.AllUniqueArtists.Select(a => a.Id).ToList() }, _username).Select(g => g.GroupId).ToList();
-
-            var allItems = new List<SpotifyObject>();
-            allItems.Add(track);
-            allItems.Add(track.Album);
-            allItems.AddRange(track.AllUniqueArtists);
-
-            foreach (var item in allItems)
-            {
-                var itemGroupIds = _database.FindGroups(new FindGroups { ItemIds = new List<string>() { item.Id } }, _username).Select(g => g.GroupId).ToList();
+                var itemGroupIds = _database.FindGroups(new FindGroups { ItemIds = new List<string>() { track.Id } }, _username).Select(g => g.GroupId).ToList();
                 var result = groups.Select(g => new GroupMembershipsForResponse
                 {
                     GroupId = g.GroupId,
                     GroupName = g.GroupName,
                     IsMember = itemGroupIds.Contains(g.GroupId),
-                    ItemId = item.Id
+                    ItemId = track.Id
                 });
 
-                _cache.Save(_username, $"MembershipsFor.{item.Id}", result);
-            }
+                _cache.Save(_username, nameof(GetGroupsForTrackFromCache), result);
 
             return View("TrackSingle", new TrackSingleViewModel
             {
