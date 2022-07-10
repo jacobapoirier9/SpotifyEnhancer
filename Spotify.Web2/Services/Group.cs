@@ -25,10 +25,7 @@ namespace Spotify.Web.Services
         public string GroupName { get; set; }
     }
 
-
-    [Schema("Spotify")]
-    [Alias("FindGroups")]
-    public class FindGroupsResponse
+    public class FullGroup
     {
         public string Username { get; set; }
 
@@ -43,20 +40,20 @@ namespace Spotify.Web.Services
         public int ArtistCount { get; set; }
     }
 
-    [Schema("Spotify")]
-    [Alias("FindRelationships")]
-    public class FindItemsResponse
-    {
-        public string Username { get; set; }
+    //[Schema("Spotify")]
+    //[Alias("FindRelationships")]
+    //public class FullItem
+    //{
+    //    public string Username { get; set; }
 
-        public string RelationshipId { get; set; }
+    //    public string RelationshipId { get; set; }
 
-        public string GroupId { get; set; }
+    //    public string GroupId { get; set; }
 
-        public string GroupName { get; set; }
+    //    public string GroupName { get; set; }
 
-        public ItemType ItemType { get; set; }
+    //    public ItemType ItemType { get; set; }
 
-        public string ItemId { get; set; }
-    }
+    //    public string ItemId { get; set; }
+    //}
 }

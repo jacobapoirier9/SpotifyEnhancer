@@ -15,7 +15,7 @@ namespace Spotify.Web.Services
     {
         [Schema("Spotify")]
         [Alias("GroupRelationship")]
-        public class DbGroupRelationship
+        private class DbGroupRelationship
         {
             public string Username { get; set; }
 
@@ -28,7 +28,7 @@ namespace Spotify.Web.Services
 
         [Schema("Spotify")]
         [Alias("Groups")]
-        public class DbGroup
+        private class DbGroup
         {
             [IgnoreOnInsert]
             public int GroupId { get; set; }
@@ -38,6 +38,23 @@ namespace Spotify.Web.Services
             public string GroupName { get; set; }
 
             public string GroupDescription { get; set; }
+        }
+
+        [Schema("Spotify")]
+        [Alias("GroupsWithCounts")]
+        private class DbGroupsWithCounts
+        {
+            public string Username { get; set; }
+
+            public int GroupId { get; set; }
+
+            public string GroupName { get; set; }
+
+            public int TrackCount { get; set; }
+
+            public int AlbumCount { get; set; }
+
+            public int ArtistCount { get; set; }
         }
 
 
@@ -57,11 +74,11 @@ namespace Spotify.Web.Services
         //}
         
 
-        public List<FindGroupsResponse> FindGroups(FindGroups request, string username)
+        public List<FullGroup> FindGroups(FindGroups request, string username)
         {
             using (var db = _factory.Open())
             {
-                var query = db.From<FindGroupsResponse>()
+                var query = db.From<DbGroupsWithCounts>()
                     .Where(g => g.Username == username);
                 
                 if (request.ItemIds is not null && request.ItemIds.Count > 0)
@@ -73,21 +90,21 @@ namespace Spotify.Web.Services
                     query.Where(g => Sql.In(g.GroupId, subQuery));
                 }
 
-                return db.Select(query);
+                return ToDto(db.Select(query));
             }
         }
 
-        public FindGroupsResponse GetGroup(GetGroup request, string username)
+        public FullGroup GetGroup(GetGroup request, string username)
         {
             using (var db = _factory.Open())
             {
-                var query = db.From<FindGroupsResponse>()
+                var query = db.From<DbGroupsWithCounts>()
                     .Where(g => g.Username == username);
 
-                return db.Single(query);
+                return ToDto(db.Single(query));
             }
         }
-        public FindGroupsResponse SaveGroup(SaveGroup request, string username)
+        public FullGroup SaveGroup(SaveGroup request, string username)
         {
             using (var db = _factory.Open())
             {
@@ -101,27 +118,43 @@ namespace Spotify.Web.Services
             }
         }
 
-        public List<FindItemsResponse> FindItems(FindItems request, string username)
+        //public List<FullItem> FindItems(FindItems request, string username)
+        //{
+        //    using (var db = _factory.Open())
+        //    {
+        //        var query = db.From<DbGroupRelationship>()
+        //            .Join<DbGroup>((gr, g) => gr.GroupId == g.GroupId)
+        //            .Where(gr => gr.Username == username)
+        //            .SelectDistinct();
+
+        //        if (request.GroupId.HasValue)
+        //        {
+        //            query.Where(gr => gr.GroupId == request.GroupId);
+        //        }
+        //        if (request.ItemIds is not null && request.ItemIds.Count > 0)
+        //        {
+        //            query.Where(gr => Sql.In(gr.ItemId, request.ItemIds));
+        //        }
+
+        //        var items = db.Select<FullItem>(query);
+        //        return items;
+        //    }
+        //}
+
+        private static List<FullGroup> ToDto(List<DbGroupsWithCounts> from) => from.ConvertAll(ToDto);
+        private static FullGroup ToDto(DbGroupsWithCounts from)
         {
-            using (var db = _factory.Open())
+            var to = new FullGroup
             {
-                var query = db.From<DbGroupRelationship>()
-                    .Join<DbGroup>((gr, g) => gr.GroupId == g.GroupId)
-                    .Where(gr => gr.Username == username)
-                    .SelectDistinct();
+                GroupId = from.GroupId,
+                GroupName = from.GroupName,
+                Username = from.Username,
+                ArtistCount = from.ArtistCount,
+                AlbumCount = from.AlbumCount,
+                TrackCount = from.TrackCount
+            };
 
-                if (request.GroupId.HasValue)
-                {
-                    query.Where(gr => gr.GroupId == request.GroupId);
-                }
-                if (request.ItemIds is not null && request.ItemIds.Count > 0)
-                {
-                    query.Where(gr => Sql.In(gr.ItemId, request.ItemIds));
-                }
-
-                var items = db.Select<FindItemsResponse>(query);
-                return items;
-            }
+            return to;
         }
     }
 }

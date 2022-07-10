@@ -39,6 +39,66 @@ var spotify = {
             }
         });
     },
+    page: {
+        groups: {
+            gridModel: helpers.createGridModel({
+                url: router.route("/Spotify/GetGroups"),
+                mtype: "POST",
+                datatype: "json",
+                idPrefix: "grp_",
+                colModel: [
+                    { hidden: true, name: "GroupId" },
+                    { name: "GroupName", label: "Group" },
+                    {
+                        name: "TrackCount", label: "Tracks",
+                        formatter: function (cellValue, info, model, action) {
+                            return "<span>" + cellValue + "</span><span class='pull-right' onclick='spotify.openGroup(\"" + model.GroupId + "\")' style='margin: 5px;'><i class=\"fa fa-headphones\"></i></span>";
+                        }
+                    },
+                    { name: "AlbumCount", label: "Albums" },
+                    { name: "ArtistCount", label: "Artists" }
+                ]
+            }),
+            loadFromServer: function () {
+                var $groupsGrid = $("#groupsGrid");
+                $.ajax({
+                    type: "POST",
+                    url: router.route("/Spotify/GetGroups"),
+                    success: function (response) {
+                        $groupsGrid.setGridParam({ data: response });
+                        $groupsGrid.trigger("reloadGrid");
+                    }
+                });
+            },
+            init: function () {
+                var $groupsGrid = $("#groupsGrid").jqGrid(spotify.page.groups.gridModel);
+                helpers.grid.resizeGridOnWindowResize($groupsGrid);
+                helpers.modal.init("#groupModal", {
+                    title: "Create Group",
+                    mode: "create",
+                    formData: {
+                        groupName: "",
+                        groupDescription: ""
+                    },
+                    onsubmit: {
+                        create: function (form) {
+                            $.ajax({
+                                url: router.route("/Spotify/SaveGroup"),
+                                type: "POST",
+                                data: {
+                                    GroupName: form.groupName,
+                                    GroupDescription: form.groupDescription
+                                },
+                                success: function (response) {
+                                    spotify.page.groups.loadFromServer();
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    },
     init: function () {
         helpers.interval.set(spotify.loadCurrentlyPlaying, config.loadCurrentlyPlayingInterval);
     }

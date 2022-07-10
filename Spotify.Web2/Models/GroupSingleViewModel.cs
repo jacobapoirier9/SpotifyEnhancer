@@ -8,6 +8,6 @@ namespace Spotify.Web.Models
 {
     public class GroupSingleViewModel
     {
-        public FindGroupsResponse Group { get; set; }
+        public FullGroup Group { get; set; }
     }
 }
