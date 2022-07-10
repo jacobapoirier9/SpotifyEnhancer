@@ -17,7 +17,8 @@ namespace Spotify.Web.Services
     public class FindItems
     {
         public int? GroupId { get; set; }
-        public List<string> ItemIds { get; set; }
+        public ItemType? ItemType { get; set; }
+        //public List<string> ItemIds { get; set; }
     }
 
     public class SaveGroup
@@ -38,6 +39,16 @@ namespace Spotify.Web.Services
         public int AlbumCount { get; set; }
 
         public int ArtistCount { get; set; }
+    }
+
+    public class FullItem
+    {
+        public string ItemId { get; set; }
+
+        public string Name { get; set; }
+
+        public ItemType ItemType { get; set; }
+
     }
 
     //[Schema("Spotify")]

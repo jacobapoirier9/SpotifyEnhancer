@@ -61,12 +61,45 @@ namespace Spotify.Web.Controllers
             if (groupId.HasValue)
             {
                 var group = _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username);
+
+                var relatedItems = _service.FindItems(new FindItems { GroupId = groupId.Value }, _username);
+
+                var trackIds = relatedItems.Where(ri => ri.ItemType == ItemType.Track).Select(t => t.ItemId).ToList();
+                var albumIds = relatedItems.Where(ri => ri.ItemType == ItemType.Album).Select(t => t.ItemId).ToList();
+                var artistIds = relatedItems.Where(ri => ri.ItemType == ItemType.Artist).Select(t => t.ItemId).ToList();
+
+                var tracks = trackIds.Count > 0 ? _spotify.Get(new GetTracks { Ids = trackIds }).Tracks : new List<Track>();
+                var albums = albumIds.Count > 0 ? _spotify.Get(new GetAlbums { Ids = albumIds }).Albums : new List<Album>();
+                var artists = artistIds.Count > 0 ? _spotify.Get(new GetArtists { Ids = artistIds }).Artists : new List<Artist>();
+
+                _cache.Save(_username, nameof(GetTracksFromCache), tracks);
+                _cache.Save(_username, nameof(GetAlbumsFromCache), albums);
+                _cache.Save(_username, nameof(GetArtistsFromCache), artists);
+
                 return View("GroupSingle", new GroupSingleViewModel { Group = group });
             }
             else
             {
                 return View("GroupsMultiple");
             }
+        }
+
+        public IActionResult GetTracksFromCache()
+        {
+            var tracks = _cache.Get<List<Track>>(_username, nameof(GetTracksFromCache));
+            return Json(tracks);
+        }
+
+        public IActionResult GetAlbumsFromCache()
+        {
+            var albums = _cache.Get<List<Album>>(_username, nameof(GetAlbumsFromCache));
+            return Json(albums);
+        }
+
+        public IActionResult GetArtistsFromCache()
+        {
+            var artists = _cache.Get<List<Artist>>(_username, nameof(GetArtistsFromCache));
+            return Json(artists);
         }
 
         [Ajax]
@@ -84,6 +117,13 @@ namespace Spotify.Web.Controllers
             var group = _service.SaveGroup(toSave, _username);
             return Json(group);
         }
+
+        //public IActionResult Test()
+        //{
+        //    var items = _service.FindItems(new FindItems { GroupId = 4, ItemType = ItemType.Track }, _username);
+
+        //    return Json(items);
+        //}
 
         [HttpGet]
         public IActionResult Track(string trackId)

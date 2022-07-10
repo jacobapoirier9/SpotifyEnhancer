@@ -10,6 +10,6 @@ namespace Spotify.Web.Services
         FullGroup GetGroup(GetGroup request, string username);
         FullGroup SaveGroup(SaveGroup request, string username);
 
-        //List<FullItem> FindItems(FindItems request, string username);
+        List<FullItem> FindItems(FindItems request, string username);
     }
 }

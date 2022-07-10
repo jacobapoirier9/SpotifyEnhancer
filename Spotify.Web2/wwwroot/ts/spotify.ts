@@ -1,6 +1,46 @@
 ﻿/// <reference path="../lib/jquery/dist/jquery.d.ts" />
 /// <reference path="../lib/jqgrid/jqGrid.d.ts" />
 
+var gridModels = {
+    track(override: JqGridOptions) {
+        var model = helpers.createGridModel({
+            datatype: "json",
+            colModel: [
+                { hidden: true, name: "Id", label: "TrackId" },
+                { name: "Name", label: "Track"}
+            ]
+        })
+
+        $.extend(model, override)
+        return model
+    },
+    album(override: JqGridOptions) {
+        var model = helpers.createGridModel({
+            datatype: "json",
+            colModel: [
+                { hidden: true, name: "Id", label: "AlbumId" },
+                { name: "Name", label: "Album" }
+            ]
+        })
+
+        $.extend(model, override)
+        return model
+    },
+    artist(override: JqGridOptions) {
+        var model = helpers.createGridModel({
+            datatype: "json",
+            colModel: [
+                { hidden: true, name: "Id", label: "ArtistId" },
+                { name: "Name", label: "Artist" }
+            ]
+        })
+
+        $.extend(model, override)
+        return model
+    }
+}
+
+
 var spotify = {
 
     openTrack(trackId: string) {
@@ -44,6 +84,28 @@ var spotify = {
         })
     },
     page: {
+        groupSingle: {
+            init() {
+                var $tracksGrid = $("#tracksGrid").jqGrid(gridModels.track({
+                    url: router.route("/Spotify/GetTracksFromCache"),
+                    mtype: "POST"
+                }))
+
+                var $albumsGrid = $("#albumsGrid").jqGrid(gridModels.album({
+                    url: router.route("/Spotify/GetAlbumsFromCache"),
+                    mtype: "POST"
+                }))
+
+                var $artistsGrid = $("#artistsGrid").jqGrid(gridModels.artist({
+                    url: router.route("/Spotify/GetArtistsFromCache"),
+                    mtype: "POST"
+                }))
+
+                helpers.grid.resizeGridOnWindowResize($tracksGrid)
+                helpers.grid.resizeGridOnWindowResize($albumsGrid)
+                helpers.grid.resizeGridOnWindowResize($artistsGrid)
+            }
+        },
         groups: {
             gridModel: helpers.createGridModel({
                 url: router.route("/Spotify/GetGroups"),
@@ -51,7 +113,7 @@ var spotify = {
                 datatype: "json",
                 idPrefix: "grp_",
                 colModel: [
-                    { hidden: true, name: "GroupId" },
+                    { hidden: false, name: "GroupId" },
                     { name: "GroupName", label: "Group" },
                     {
                         name: "TrackCount", label: "Tracks",

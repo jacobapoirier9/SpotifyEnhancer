@@ -10,7 +10,9 @@
                 <h3 class="box-title">Tracks (@Model.Group.TrackCount)</h3>
             </div>
             <div class="box-body">
-
+                <div class="grid-container">
+                    <table id="tracksGrid"></table>
+                </div>
             </div>
         </div>
     </div>
@@ -20,7 +22,9 @@
                 <h3 class="box-title">Albums (@Model.Group.AlbumCount)</h3>
             </div>
             <div class="box-body">
-
+                <div class="grid-container">
+                    <table id="albumsGrid"></table>
+                </div>
             </div>
         </div>
     </div>
@@ -30,7 +34,9 @@
                 <h3 class="box-title">Artists (@Model.Group.ArtistCount)</h3>
             </div>
             <div class="box-body">
-
+                <div class="grid-container">
+                    <table id="artistsGrid"></table>
+                </div>
             </div>
         </div>
     </div>
@@ -38,5 +44,6 @@
 
 @section Scripts {
     <script>
+        $(spotify.page.groupSingle.init)
     </script>
 } 

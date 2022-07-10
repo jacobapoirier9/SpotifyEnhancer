@@ -90,7 +90,8 @@ namespace Spotify.Web.Services
                     query.Where(g => Sql.In(g.GroupId, subQuery));
                 }
 
-                return ToDto(db.Select(query));
+                var groups = db.Select(query);
+                return ToDto(groups);
             }
         }
 
@@ -99,9 +100,10 @@ namespace Spotify.Web.Services
             using (var db = _factory.Open())
             {
                 var query = db.From<DbGroupsWithCounts>()
-                    .Where(g => g.Username == username);
+                    .Where(g => g.Username == username && g.GroupId == request.GroupId);
 
-                return ToDto(db.Single(query));
+                var groupWithCounts = db.Single(query);
+                return ToDto(groupWithCounts);
             }
         }
         public FullGroup SaveGroup(SaveGroup request, string username)
@@ -115,6 +117,28 @@ namespace Spotify.Web.Services
                 }, true);
 
                 return GetGroup(new GetGroup { GroupId = id }, username);
+            }
+        }
+
+        public List<FullItem> FindItems(FindItems request, string username)
+        {
+            using (var db = _factory.Open())
+            {
+                var query = db.From<DbGroupRelationship>()
+                    .Where(gr => gr.Username == username);
+
+                if (request.GroupId.HasValue)
+                {
+                    query.Where(gr => gr.GroupId == request.GroupId.Value);
+                }
+                
+                if (request.ItemType.HasValue)
+                {
+                    query.Where(gr => gr.ItemType == request.ItemType.Value);
+                }
+
+                var relationships = db.Select(query);
+                return ToDto(relationships);
             }
         }
 
@@ -152,6 +176,18 @@ namespace Spotify.Web.Services
                 ArtistCount = from.ArtistCount,
                 AlbumCount = from.AlbumCount,
                 TrackCount = from.TrackCount
+            };
+
+            return to;
+        }
+
+        private static List<FullItem> ToDto(List<DbGroupRelationship> from) => from.ConvertAll(ToDto);
+        private static FullItem ToDto(DbGroupRelationship from)
+        {
+            var to = new FullItem
+            {
+                ItemId = from.ItemId,
+                ItemType = from.ItemType
             };
 
             return to;
