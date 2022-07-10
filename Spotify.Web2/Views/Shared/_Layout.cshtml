@@ -9,8 +9,8 @@
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
-        @Html.Partial("_Header")
-        @Html.Partial("_Sidebar")
+        <partial name="_Header" />
+        <partial name="_Sidebar" />
 
         <div class="content-wrapper">
             <section class="content-header">
@@ -25,7 +25,7 @@
             </section>
         </div>
 
-        @Html.Partial("_ControlSidebar")
+        <partial name="_ControlSidebar" />
     </div>
 
     <script src="/js/bundles.js"></script>

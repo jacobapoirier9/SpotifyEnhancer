@@ -66,6 +66,7 @@ namespace Spotify.Web.Controllers
         {
             if (groupId.HasValue)
             {
+                var group = _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username);
                 return View("GroupSingle", _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username));
             }
             else

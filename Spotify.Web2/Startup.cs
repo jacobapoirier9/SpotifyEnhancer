@@ -42,6 +42,9 @@ namespace Spotify.Web
 
             services.AddRazorPages();
             services.AddControllersWithViews()
+                #if DEBUG
+                .AddRazorRuntimeCompilation()
+                #endif
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = null;
@@ -59,6 +62,7 @@ namespace Spotify.Web
                     "/css/icheck/blue.css",
                     "/css/AdminLTE.css",
                     "/css/skins/skin-blue.css",
+                    "/lib/jqgrid/ui.jqgrid-bootstrap.css",
                     "/css/site.css"
                 });
                 pipeline.AddJavaScriptBundle("/js/bundles.js", new string[]
