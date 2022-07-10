@@ -17,6 +17,7 @@ using Spotify.Library.Core;
 using Spotify.Library.Services;
 using Spotify.Web.Services;
 using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Net;
@@ -116,19 +117,27 @@ namespace Spotify.Web
                     builder.AppendLine(sqlCmd.Connection.ConnectionString);
                     foreach (SqlParameter parm in sqlCmd.Parameters)
                     {
-                        builder.AppendLine($"declare {parm.ParameterName} {parm.SqlDbType} = {(parm.SqlDbType == System.Data.SqlDbType.DateTime ? "\"" + parm.Value + "\"" : parm.Value)}");
+
+                        var sqlValue = parm.SqlDbType switch
+                        {
+                            SqlDbType.VarChar or SqlDbType.NVarChar or SqlDbType.DateTime
+                            => $"'{parm.Value}'",
+
+                            _ => parm.Value
+                        };
+
+                        builder.AppendLine($"declare {parm.ParameterName} {parm.SqlDbType} = {sqlValue}");
                     }
                     builder.AppendLine();
                     builder.AppendLine(sqlCmd.CommandText);
                     builder.AppendLine();
-                    Console.WriteLine(builder.ToString());
+
                     _logger.Trace("Running SQL: {NewLine} {SQL}", Environment.NewLine, builder.ToString());
                 };
             }
 
             services.AddSingleton<ICustomCache, CustomFileSystemCache>();
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
-            services.AddSingleton<IDatabaseService, DatabaseService>();
 
 
             services.AddSingleton<IServiceClient>(new JsonServiceClient

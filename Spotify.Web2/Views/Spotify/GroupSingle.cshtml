@@ -1,13 +1,13 @@
-﻿@model GroupSingleViewModel
+﻿@model Group
 @{
-    ViewData["Title"] = Model.Group.GroupName;
+    ViewData["Title"] = Model.GroupName;
 }
 
 <div class="row">
-    <div class="col-xs-12 col-md-4">
+    <div class="col-xs-12 col-md-8">
         <div class="box box-default">
             <div class="box-header with-border">
-                <h3 class="box-title">Tracks (@Model.Group.TrackCount)</h3>
+                <h3 class="box-title">Tracks</h3>
             </div>
             <div class="box-body">
                 <div class="grid-container">
@@ -17,6 +17,16 @@
         </div>
     </div>
     <div class="col-xs-12 col-md-4">
+        <div class="box box-default">
+            <div class="box-header with-border">
+
+            </div>
+            <div class="box-body">
+                <h1>Here</h1>
+            </div>
+        </div>
+    </div>
+    @*<div class="col-xs-12 col-md-4">
         <div class="box box-default">
             <div class="box-header with-border">
                 <h3 class="box-title">Albums (@Model.Group.AlbumCount)</h3>
@@ -39,7 +49,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 </div>
 
 @section Scripts {

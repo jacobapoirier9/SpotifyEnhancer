@@ -54,16 +54,6 @@ var gridModels = {
         $.extend(model, override);
         return model;
     }
-    //audioFeatures(override: JqGridOptions) {
-    //    var model = helpers.createGridModel({
-    //        datatype: "json",
-    //        colModel: [
-    //            { name: ""}
-    //        ]
-    //    })
-    //    $.extend(model, override)
-    //    return model
-    //}
 };
 var spotify = {
     openTrack: function (trackId) {
@@ -126,71 +116,25 @@ var spotify = {
         },
         trackSingle: {
             init: function () {
-                var track = JSON.parse($("#trackJson").val()).Track;
-                console.debug("Viewing Track", track);
                 var $trackGroupsGrid = $("#trackGroupsGrid").jqGrid(gridModels.group({
-                    url: router.route("/Spotify/GetGroupsForTrackFromCache"),
+                    url: router.route("/Spotify/CachedGroups"),
                     mtype: "POST"
                 }));
                 helpers.grid.setGridWidthToParentWidth($trackGroupsGrid);
+                var $recommendationsGrid = $("#recommendationsGrid").jqGrid(gridModels.track({
+                    url: router.route("/Spotify/GetRecommendations"),
+                    mtype: "POST"
+                }));
+                helpers.grid.resizeGridOnWindowResize($recommendationsGrid);
             }
         },
-        groups: {
-            gridModel: helpers.createGridModel({
-                url: router.route("/Spotify/GetGroups"),
-                mtype: "POST",
-                datatype: "json",
-                idPrefix: "grp_",
-                colModel: [
-                    { hidden: false, name: "GroupId" },
-                    { name: "GroupName", label: "Group" },
-                    {
-                        name: "TrackCount", label: "Tracks",
-                        formatter: function (cellValue, info, model, action) {
-                            return "<span>" + cellValue + "</span><span class='pull-right' onclick='spotify.openGroup(\"" + model.GroupId + "\")' style='margin: 5px;'><i class=\"fa fa-headphones\"></i></span>";
-                        }
-                    },
-                    { name: "AlbumCount", label: "Albums" },
-                    { name: "ArtistCount", label: "Artists" }
-                ]
-            }),
-            loadFromServer: function () {
-                var $groupsGrid = $("#groupsGrid");
-                $.ajax({
-                    type: "POST",
-                    url: router.route("/Spotify/GetGroups"),
-                    success: function (response) {
-                        $groupsGrid.setGridParam({ data: response });
-                        $groupsGrid.trigger("reloadGrid");
-                    }
-                });
-            },
+        groupsMultiple: {
             init: function () {
-                var $groupsGrid = $("#groupsGrid").jqGrid(spotify.page.groups.gridModel);
+                var $groupsGrid = $("#groupsGrid").jqGrid(gridModels.group({
+                    url: router.route("/Spotify/CachedGroups"),
+                    mtype: "POST"
+                }));
                 helpers.grid.resizeGridOnWindowResize($groupsGrid);
-                helpers.modal.init("#groupModal", {
-                    title: "Create Group",
-                    mode: "create",
-                    formData: {
-                        groupName: "",
-                        groupDescription: ""
-                    },
-                    onsubmit: {
-                        create: function (form) {
-                            $.ajax({
-                                url: router.route("/Spotify/SaveGroup"),
-                                type: "POST",
-                                data: {
-                                    GroupName: form.groupName,
-                                    GroupDescription: form.groupDescription
-                                },
-                                success: function (response) {
-                                    spotify.page.groups.loadFromServer();
-                                }
-                            });
-                        }
-                    }
-                });
             }
         }
     },

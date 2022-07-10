@@ -2,77 +2,20 @@
     ViewData["Title"] = "Groups";
 }
 
-
-
-<div id="groupModal" class="modal modal-transactional">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title"></h4>
-            </div>
-            <div class="modal-body">
-
-                <div class="row">
-                    <div class="col-lg-6">
-                        <label>Name:</label>
-                    </div>
-                    <div class="col-lg-6">
-                        <input type="text" id="groupName" />
-                    </div>
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                <input id="closeBtn" type="button" class="pull-left" value="Close" data-dismiss="modal" />
-                <input id="submitBtn" type="submit" class="pull-right" value="Submit" data-dismiss="modal" />
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="row">
     <div class="col-xs-12 col-md-12">
         <div class="box box-default">
             <div class="box-header">
-                @*<h3 class="box-title"></h3>*@
-                <button data-toggle="modal" data-target="#groupModal">Create Group</button>
             </div>
             <div class="box-body">
-
                 <table id="groupsGrid"></table>
-                @*<div class="form-group">
-                    <div>
-                        <input type="checkbox" class="form-control" checked="checked"> Checkbox
-                    </div>
-                    <div>
-                        <input type="checkbox" class="form-control"> Checkbox
-                    </div>
-                    <div>
-                        <input type="checkbox" class="form-control" disabled="disabled"> Disabled Checkbox
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div>
-                        <input type="radio" class="form-control" checked="checked"> Radio Button
-                    </div>
-                    <div>
-                        <input type="radio" class="form-control"> Radio Button
-                    </div>
-                    <div>
-                        <input type="radio" class="form-control" disabled="disabled"> Disabled Radio Button
-                    </div>
-                </div>*@
             </div>
         </div>
     </div>
-    @*<div class="col-xs-12 col-md-7">
-        <div class="box box-default">
-        </div>
-    </div>*@
 </div>
 
-            @section Scripts {
-                <script>
-                    $(spotify.page.groups.init)
-                </script>
-            }
+@section Scripts {
+    <script>
+        $(spotify.page.groupsMultiple.init)
+    </script>
+}
