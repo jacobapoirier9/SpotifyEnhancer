@@ -34,6 +34,36 @@ var gridModels = {
         $.extend(model, override);
         return model;
     },
+    group: function (override) {
+        var model = helpers.createGridModel({
+            datatype: "json",
+            colModel: [
+                { hidden: true, name: "GroupId" },
+                { hidden: true, name: "ItemId" },
+                { name: "GroupName", label: "Gropu" },
+                {
+                    name: "IsMember", label: "Is Member", width: 40, align: "right",
+                    formatter: function (cellValue, info, model, action) {
+                        var icon = "";
+                        icon = cellValue ? "fa-plus" : "fa-circle";
+                        return "<span><i class='fa " + icon + "'></i></span>";
+                    }
+                }
+            ]
+        });
+        $.extend(model, override);
+        return model;
+    }
+    //audioFeatures(override: JqGridOptions) {
+    //    var model = helpers.createGridModel({
+    //        datatype: "json",
+    //        colModel: [
+    //            { name: ""}
+    //        ]
+    //    })
+    //    $.extend(model, override)
+    //    return model
+    //}
 };
 var spotify = {
     openTrack: function (trackId) {
@@ -92,6 +122,30 @@ var spotify = {
                 helpers.grid.resizeGridOnWindowResize($tracksGrid);
                 helpers.grid.resizeGridOnWindowResize($albumsGrid);
                 helpers.grid.resizeGridOnWindowResize($artistsGrid);
+            }
+        },
+        trackSingle: {
+            init: function () {
+                var track = JSON.parse($("#trackJson").val()).Track;
+                console.debug("Viewing Track", track);
+                var $trackGroupsGrid = $("#trackGroupsGrid").jqGrid(gridModels.group({
+                    url: router.route("/Spotify/GetGroupsRelatedTo"),
+                    mtype: "POST",
+                    postData: {
+                        id: track.id
+                    }
+                }));
+                var $albumGroupsGrid = $("#albumGroupsGrid").jqGrid(gridModels.group({
+                    url: router.route("/Spotify/GetGroupsRelatedTo"),
+                    mtype: "POST",
+                    postData: {
+                        id: track.album.id
+                    }
+                }));
+                helpers.grid.setGridWidthToParentWidth($trackGroupsGrid);
+                helpers.grid.setGridWidthToParentWidth($albumGroupsGrid);
+                //helpers.grid.resizeGridOnWindowResize($trackGroupsGrid)
+                //helpers.grid.resizeGridOnWindowResize($albumGroupsGrid)
             }
         },
         groups: {

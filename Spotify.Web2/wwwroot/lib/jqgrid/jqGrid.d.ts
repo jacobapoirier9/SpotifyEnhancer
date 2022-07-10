@@ -207,7 +207,7 @@ interface ColModelOptions {
 
     /** How to format the cell. Default is return <span>cellValue</span> */
     formatter?: (
-        cellValue?: string,
+        cellValue?: string | any,
         info?: {
             rowId?: string
             colModel?: ColModelOptions

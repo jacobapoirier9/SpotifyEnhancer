@@ -5,6 +5,8 @@
 
 @inject ServiceStack.IServiceClient _spotify
 
+<input id="trackJson" type="hidden" value="@ServiceStack.StringExtensions.ToJson(Model)" />
+
 <div class="row">
     <div class="col-xs-12 col-md-4">
         <div class="box box-default">
@@ -16,6 +18,10 @@
                 <div class="form-group">
                     <span>@Model.Track.Name</span>
                 </div>
+                <hr />
+                <div class="grid-container">
+                    <table id="trackGroupsGrid"></table>
+                </div>
             </div>
         </div>
     </div>
@@ -25,8 +31,14 @@
                 <h3 class="box-title">Album</h3>
             </div>
             <div class="box-body">
-                <span>@Model.Track.Album.Name</span>
-                <img class="pull-right" src="@Model.Track.Album.Images[2].Url" />
+                <div class="col-md-12 col-sm-12">
+                    <span class="no-te">@Model.Track.Album.Name</span>
+                    <img class="pull-right" src="@Model.Track.Album.Images[2].Url" />
+                </div>
+                <hr />
+                <div class="col-md-12 col-sm-12 grid-container">
+                    <table id="albumGroupsGrid"></table>
+                </div>
             </div>
         </div>
     </div>
@@ -42,13 +54,13 @@
                 }
 
                 @foreach (var artist in artists)
-            {
-                <div class="col-lg-12" style="margin-bottom: 5px;">
-                    <span>@artist.Name</span>
-                    <img class="pull-right" src="@artist.Images[2].Url" width="64" height="64" />
-                </div>
-                <br />
-            }
+                {
+                    <div class="col-md-12 col-sm-12" style="margin-bottom: 5px;">
+                        <span>@artist.Name</span>
+                        <img class="pull-right" src="@artist.Images[2].Url" width="64" height="64" />
+                    </div>
+                    <br />
+                }
             </div>
         </div>
     </div>
@@ -73,5 +85,6 @@
 
 @section Scripts {
     <script>
+        $(spotify.page.trackSingle.init)
     </script>
 } 

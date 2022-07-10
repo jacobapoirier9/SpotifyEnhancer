@@ -10,7 +10,6 @@ using Spotify.Library.Core;
 using Spotify.Library.Services;
 using Spotify.Web.Models;
 using Spotify.Web.Services;
-using Spotify.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -28,7 +27,7 @@ namespace Spotify.Web.Controllers
         private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IServiceClient _spotify;
         private readonly ICustomCache _cache;
-        private IDatabaseService _service;
+        private IDatabaseService _database;
 
         private string _username => this.Claim<string>(Names.Username);
 
@@ -36,7 +35,7 @@ namespace Spotify.Web.Controllers
         {
             _spotify = spotify;
             _cache = cache;
-            _service = service;
+            _database = service;
         }
 
         private void SetupApi() => SetupApi(out _);
@@ -60,9 +59,9 @@ namespace Spotify.Web.Controllers
         {
             if (groupId.HasValue)
             {
-                var group = _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username);
+                var group = _database.GetGroup(new GetGroup { GroupId = groupId.Value }, _username);
 
-                var relatedItems = _service.FindItems(new FindItems { GroupId = groupId.Value }, _username);
+                var relatedItems = _database.FindItems(new FindItems { GroupId = groupId.Value }, _username);
 
                 var trackIds = relatedItems.Where(ri => ri.ItemType == ItemType.Track).Select(t => t.ItemId).ToList();
                 var albumIds = relatedItems.Where(ri => ri.ItemType == ItemType.Album).Select(t => t.ItemId).ToList();
@@ -80,6 +79,9 @@ namespace Spotify.Web.Controllers
             }
             else
             {
+                var groups = _database.FindGroups(new FindGroups { }, _username);
+                _cache.Save(_username, nameof(GetGroupsFromCache), groups);
+
                 return View("GroupsMultiple");
             }
         }
@@ -102,11 +104,24 @@ namespace Spotify.Web.Controllers
             return Json(artists);
         }
 
+        public IActionResult GetGroupsFromCache()
+        {
+            var groups = _cache.Get<List<FullGroup>>(_username, nameof(GetGroupsFromCache));
+            return Json(groups);
+        }
+
+        public IActionResult GetGroupsRelatedTo(string id)
+        {
+            var memberedGroups = _cache.Get<List<GroupMembershipsForResponse>>(_username, $"MembershipsFor.{id}");
+            return Json(memberedGroups);
+        }
+
         [Ajax]
         [HttpPost]
         public IActionResult GetGroups()
         {
-            var groups = _service.FindGroups(new FindGroups(), _username);
+            return GetGroupsFromCache();
+            var groups = _database.FindGroups(new FindGroups(), _username);
             return Json(groups);
         }
 
@@ -114,16 +129,17 @@ namespace Spotify.Web.Controllers
         [HttpPost]
         public IActionResult SaveGroup(SaveGroup toSave)
         {
-            var group = _service.SaveGroup(toSave, _username);
+            var group = _database.SaveGroup(toSave, _username);
             return Json(group);
         }
 
-        //public IActionResult Test()
-        //{
-        //    var items = _service.FindItems(new FindItems { GroupId = 4, ItemType = ItemType.Track }, _username);
-
-        //    return Json(items);
-        //}
+        public class GroupMembershipsForResponse
+        {
+            public int GroupId { get; set; }
+            public string GroupName { get; set; }
+            public bool IsMember { get; set; }
+            public string ItemId { get; set; }
+        }
 
         [HttpGet]
         public IActionResult Track(string trackId)
@@ -133,8 +149,33 @@ namespace Spotify.Web.Controllers
             var track = _spotify.Get(new GetTrack { TrackId = trackId });
             _cache.Save(username, track);
 
-            var audioFeatures = _spotify.Get(new GetAudioFeatures { Id = trackId });
-            _cache.Save(username, audioFeatures);
+            //var audioFeatures = _spotify.Get(new GetAudioFeatures { Id = trackId });
+            //_cache.Save(username, audioFeatures);
+
+            var groups = _database.FindGroups(new FindGroups { }, _username);
+
+            //var trackGroups = _database.FindGroups(new FindGroups { ItemIds = new List<string>() { track.Id } }, _username).Select(g => g.GroupId).ToList();
+            //var albumGroups = _database.FindGroups(new FindGroups { ItemIds = new List<string>() { track.Album.Id } }, _username).Select(g => g.GroupId).ToList();
+            //var artistGroups = _database.FindGroups(new FindGroups { ItemIds = track.AllUniqueArtists.Select(a => a.Id).ToList() }, _username).Select(g => g.GroupId).ToList();
+
+            var allItems = new List<SpotifyObject>();
+            allItems.Add(track);
+            allItems.Add(track.Album);
+            allItems.AddRange(track.AllUniqueArtists);
+
+            foreach (var item in allItems)
+            {
+                var itemGroupIds = _database.FindGroups(new FindGroups { ItemIds = new List<string>() { item.Id } }, _username).Select(g => g.GroupId).ToList();
+                var result = groups.Select(g => new GroupMembershipsForResponse
+                {
+                    GroupId = g.GroupId,
+                    GroupName = g.GroupName,
+                    IsMember = itemGroupIds.Contains(g.GroupId),
+                    ItemId = item.Id
+                });
+
+                _cache.Save(_username, $"MembershipsFor.{item.Id}", result);
+            }
 
             return View("TrackSingle", new TrackSingleViewModel
             {
