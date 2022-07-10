@@ -40,7 +40,7 @@ var gridModels = {
             colModel: [
                 { hidden: true, name: "GroupId" },
                 { hidden: true, name: "ItemId" },
-                { name: "GroupName", label: "Gropu" },
+                { name: "GroupName", label: "Group" },
                 {
                     name: "IsMember", label: "Is Member", width: 40, align: "right",
                     formatter: function (cellValue, info, model, action) {
