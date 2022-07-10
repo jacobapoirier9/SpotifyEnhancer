@@ -264,20 +264,22 @@ var spotify = {
 
                 if (response === null) {
                     console.debug("Nothing is playing, removing image")
-                    $currentlyPlaying.children("img").remove()
+                    //$currentlyPlaying.children("img").remove()
+                    $currentlyPlaying.html("")
                 }
                 else if ($currentlyPlaying.attr("data-uri") === response.Item.Uri) {
                     console.debug("Currently playing image is already set")
                 } else {
                     console.debug("Currently playing image needs to be set again")
-                    $currentlyPlaying.children("img").remove()
+                    $currentlyPlaying.html("")
+                    //$currentlyPlaying.children("img").remove()
                     $currentlyPlaying.attr("data-uri", response.Item.Uri)
                         .append("<img>").children("img")
                         .attr("src", response.Item.Album.Images[1].Url)
                         .attr("alt", response.Item.Name)
                         .attr("title", response.Item.Name)
-                        .attr("width", 100)
-                        .attr("height", 100)
+                        .attr("width", 120)
+                        .attr("height", 120)
                         .click(() => spotify.openTrack(response.Item.Id))
                 }
             },
