@@ -33,7 +33,7 @@ var gridModels = {
         });
         $.extend(model, override);
         return model;
-    }
+    },
 };
 var spotify = {
     openTrack: function (trackId) {

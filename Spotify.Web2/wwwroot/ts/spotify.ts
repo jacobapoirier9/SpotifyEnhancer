@@ -37,7 +37,18 @@ var gridModels = {
 
         $.extend(model, override)
         return model
-    }
+    },
+    //audioFeatures(override: JqGridOptions) {
+    //    var model = helpers.createGridModel({
+    //        datatype: "json",
+    //        colModel: [
+    //            { name: ""}
+    //        ]
+    //    })
+
+    //    $.extend(model, override)
+    //    return model
+    //}
 }
 
 

@@ -9,5 +9,7 @@ namespace Spotify.Web.Models
     public class TrackSingleViewModel
     {
         public Track Track { get; set; }
+
+        public bool IsLiked { get; set; }
     }
 }

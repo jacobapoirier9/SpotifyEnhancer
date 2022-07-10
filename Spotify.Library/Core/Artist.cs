@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Spotify.Library.Core
 {
     [Route("/artists/{Id}")]
-    public class GetArtist : IReturn<Artist>, IGet
+    public class GetArtist : IReturn<FullArtist>, IGet
     {
         public string Id { get; set; }
     }
@@ -21,9 +21,24 @@ namespace Spotify.Library.Core
     {
     }
 
+    public class FullArtist : Artist
+    {
+        [DataMember(Name = "followers")]
+        public SpotifyEntityReferenceObject Followers { get; set; }
+
+        [DataMember(Name = "genres")]
+        public List<string> Genres { get; set; }
+
+        [DataMember(Name = "images")]
+        public List<SpotifyImage> Images { get; set; }
+
+        [DataMember(Name = "popularity")]
+        public byte Popularity { get; set; }
+    }
+
     public class MultipleArtistsWrapper
     {
         [DataMember(Name = "artists")]
-        public List<Artist> Artists { get; set; }
+        public List<FullArtist> Artists { get; set; }
     }
 }

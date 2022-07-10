@@ -70,7 +70,7 @@ namespace Spotify.Web.Controllers
 
                 var tracks = trackIds.Count > 0 ? _spotify.Get(new GetTracks { Ids = trackIds }).Tracks : new List<Track>();
                 var albums = albumIds.Count > 0 ? _spotify.Get(new GetAlbums { Ids = albumIds }).Albums : new List<Album>();
-                var artists = artistIds.Count > 0 ? _spotify.Get(new GetArtists { Ids = artistIds }).Artists : new List<Artist>();
+                var artists = artistIds.Count > 0 ? _spotify.Get(new GetArtists { Ids = artistIds }).Artists : new List<FullArtist>();
 
                 _cache.Save(_username, nameof(GetTracksFromCache), tracks);
                 _cache.Save(_username, nameof(GetAlbumsFromCache), albums);
@@ -133,10 +133,14 @@ namespace Spotify.Web.Controllers
             var track = _spotify.Get(new GetTrack { TrackId = trackId });
             _cache.Save(username, track);
 
+            var audioFeatures = _spotify.Get(new GetAudioFeatures { Id = trackId });
+            _cache.Save(username, audioFeatures);
+
             return View("TrackSingle", new TrackSingleViewModel
             {
-                Track = track
-            });
+                Track = track,
+                IsLiked = _spotify.Get(new GetTrackIsLiked { Ids = new List<string>() { trackId } }).First()
+            }); ;
         }
 
 
