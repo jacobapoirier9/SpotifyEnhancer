@@ -1,26 +1,45 @@
-﻿@model Track
+﻿@model TrackSingleViewModel
 @{
-    ViewData["Title"] = "Track";
+    ViewData["Title"] = $"{Model.Track.Name} - {Model.Track.Artists.FirstOrDefault().Name}";
 }
 
-<div class="box">
-    <div class="box-primary">
-        <div class="box-header">
-            <h3>@Model.Name - @Model.Artists.FirstOrDefault().Name</h3>
-            <h4 class="pull-right">@Model.Album.Name</h4>
-        </div>
-        <div class="box-body">
-            <div class="grid-container">
-                <table id="relationship-grid"></table>
+<div class="row">
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">Track</h3>
             </div>
-            @*<pre>@Helpers.PrettyPrintJson(ServiceStack.StringExtensions.ToJson(Model))</pre>*@
+            <div class="box-body">
+                <h1>@Model.Track.Name</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">Album</h3>
+            </div>
+            <div class="box-body">
+                <h1>@Model.Track.Album.Name</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">Artists</h3>
+            </div>
+            <div class="box-body">
+                @foreach (var artist in Model.Track.AllUniqueArtists)
+                {
+                    <h1>@artist.Name</h1>
+                }
+            </div>
         </div>
     </div>
 </div>
 
-
 @section Scripts {
     <script>
-        $(spotify.page.track.init)
     </script>
 } 
