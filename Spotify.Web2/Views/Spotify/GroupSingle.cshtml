@@ -1,6 +1,114 @@
-﻿@model Spotify.Web.Services.FindGroupsResponse
-@{ 
-    ViewData["Title"] = Model.GroupName;
-} 
+﻿@model GroupSingleViewModel
+@{
+    ViewData["Title"] = Model.Group.GroupName;
+}
 
-<h1>@Model.GroupName</h1>
+<div class="row">
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-default">
+            <div class="box-header">
+                <h3 class="box-title">Tracks (@Model.Group.TrackCount)</h3>
+            </div>
+            <div class="box-body">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">Albums (@Model.Group.AlbumCount)</h3>
+            </div>
+            <div class="box-body">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">Artists (@Model.Group.ArtistCount)</h3>
+            </div>
+            <div class="box-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+@*<div class="row">
+    <div class="col-xs-12 col-md-6">
+        <div class="box box-default">
+            <div class="box-header">
+                Date Picker
+            </div>
+            <div class="box-body">
+                <div class="form-group">
+                    <label>Date:</label>
+                    <div class="input-group date">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <input type="text" class="form-control pull-right datepicker">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-6">
+        <div class="box box-danger">
+            <div class="box-header">
+                <h3 class="box-title">Input masks</h3>
+            </div>
+            <div class="box-body">
+                <div class="form-group">
+                    <label>Date masks:</label>
+
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <input type="text" class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" data-mask="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <input type="text" class="form-control" data-inputmask="'alias': 'mm/dd/yyyy'" data-mask="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>US phone mask:</label>
+
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <input type="text" class="form-control" data-inputmask="&quot;mask&quot;: &quot;(999) 999-9999&quot;" data-mask="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Intl US phone mask:</label>
+
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <input type="text" class="form-control" data-inputmask="'mask': ['999-999-9999 [x99999]', '+099 99 99 9999[9]-9999']" data-mask="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>IP mask:</label>
+
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-laptop"></i>
+                        </div>
+                        <input type="text" class="form-control" data-inputmask="'alias': 'ip'" data-mask="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@

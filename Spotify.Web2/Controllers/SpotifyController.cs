@@ -10,6 +10,7 @@ using Spotify.Library.Core;
 using Spotify.Library.Services;
 using Spotify.Web.Models;
 using Spotify.Web.Services;
+using Spotify.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -67,7 +68,7 @@ namespace Spotify.Web.Controllers
             if (groupId.HasValue)
             {
                 var group = _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username);
-                return View("GroupSingle", _service.GetGroup(new GetGroup { GroupId = groupId.Value }, _username));
+                return View("GroupSingle", new GroupSingleViewModel { Group = group });
             }
             else
             {
