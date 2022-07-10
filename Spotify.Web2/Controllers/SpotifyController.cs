@@ -54,13 +54,6 @@ namespace Spotify.Web.Controllers
         {
             return View("Index");
         }
-        
-       
-
-
-
-
-
 
         [HttpGet]
         public IActionResult Groups(int? groupId)
@@ -128,44 +121,44 @@ namespace Spotify.Web.Controllers
             return Json(playbackState);
         }
         
-        [Ajax]
-        public IActionResult GetGroupsForCurrentTrack()
-        {
-            var track = _cache.Get<Track>(_username);
+        //[Ajax]
+        //public IActionResult GetGroupsForCurrentTrack()
+        //{
+        //    var track = _cache.Get<Track>(_username);
 
-            var itemIds = new List<string>() { track.Id, track.Album.Id };
-            itemIds.AddRange(track.Artists.Select(a => a.Id));
-            itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
+        //    var itemIds = new List<string>() { track.Id, track.Album.Id };
+        //    itemIds.AddRange(track.Artists.Select(a => a.Id));
+        //    itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
 
-            var groups = _service.FindGroups(new FindGroups { ItemIds = itemIds }, _username);
-            return Json(groups);
-        }
+        //    var groups = _service.FindGroups(new FindGroups { ItemIds = itemIds }, _username);
+        //    return Json(groups);
+        //}
 
-        [Ajax]
-        public IActionResult GetItemsForGroup(int groupId)
-        {
-            var track = _cache.Get<Track>(_username);
+        //[Ajax]
+        //public IActionResult GetItemsForGroup(int groupId)
+        //{
+        //    var track = _cache.Get<Track>(_username);
 
-            var itemIds = new List<string>() { track.Id, track.Album.Id };
-            itemIds.AddRange(track.Artists.Select(a => a.Id));
-            itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
+        //    var itemIds = new List<string>() { track.Id, track.Album.Id };
+        //    itemIds.AddRange(track.Artists.Select(a => a.Id));
+        //    itemIds.AddRange(track.Album.Artists.Select(a => a.Id));
 
-            var relatedItems = _service.FindItems(new FindItems { GroupId = groupId, ItemIds = itemIds }, _username);
+        //    var relatedItems = _service.FindItems(new FindItems { GroupId = groupId, ItemIds = itemIds }, _username);
 
-            var trackIds = relatedItems.Where(ri => ri.ItemType == ItemType.Track).Select(t => t.ItemId).ToList();
-            var albumIds = relatedItems.Where(ri => ri.ItemType == ItemType.Album).Select(t => t.ItemId).ToList();
-            var artistIds = relatedItems.Where(ri => ri.ItemType == ItemType.Artist).Select(t => t.ItemId).ToList();
+        //    var trackIds = relatedItems.Where(ri => ri.ItemType == ItemType.Track).Select(t => t.ItemId).ToList();
+        //    var albumIds = relatedItems.Where(ri => ri.ItemType == ItemType.Album).Select(t => t.ItemId).ToList();
+        //    var artistIds = relatedItems.Where(ri => ri.ItemType == ItemType.Artist).Select(t => t.ItemId).ToList();
 
-            var tracks = trackIds.Count > 0 ? _spotify.Get(new GetTracks { Ids = trackIds }).Tracks : new List<Track>();
-            var albums = albumIds.Count > 0 ? _spotify.Get(new GetAlbums { Ids = albumIds }).Albums : new List<Album>();
-            var artists = artistIds.Count > 0 ? _spotify.Get(new GetArtists { Ids = artistIds }).Artists : new List<Artist>();
+        //    var tracks = trackIds.Count > 0 ? _spotify.Get(new GetTracks { Ids = trackIds }).Tracks : new List<Track>();
+        //    var albums = albumIds.Count > 0 ? _spotify.Get(new GetAlbums { Ids = albumIds }).Albums : new List<Album>();
+        //    var artists = artistIds.Count > 0 ? _spotify.Get(new GetArtists { Ids = artistIds }).Artists : new List<Artist>();
 
-            var spotifyItems = new List<SpotifyObject>();
-            spotifyItems.AddRange(tracks);
-            spotifyItems.AddRange(albums);
-            spotifyItems.AddRange(artists);
+        //    var spotifyItems = new List<SpotifyObject>();
+        //    spotifyItems.AddRange(tracks);
+        //    spotifyItems.AddRange(albums);
+        //    spotifyItems.AddRange(artists);
 
-            return Json(spotifyItems);
-        }
+        //    return Json(spotifyItems);
+        //}
     }
 }

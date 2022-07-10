@@ -81,6 +81,9 @@ namespace Spotify.Web
                     "/lib/jqgrid/jquery.jqGrid.js",
                     "/js/adminlte.js",
                     "/js/init.js",
+                    "/js/config.js",
+                    "/js/router.js",
+                    "/js/helpers.js",
                     "/js/spotify.js"
                 });
             });
