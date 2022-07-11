@@ -41,7 +41,7 @@ namespace Spotify.Web
 
         public static void ExecuteInChunks<T>(this IEnumerable<T> items, int chunkSize, Action<List<T>> operationPerChunk)
         {
-            var list = items.ToList();
+            var list = Enumerable.ToList(items);
             for (var i = 0; i < list.Count; i += chunkSize)
             {
                 // Just don't ask me how this works :)
@@ -58,7 +58,7 @@ namespace Spotify.Web
         }
 
 
-        public static List<T> AsList<T>(this T item)
+        public static List<T> PutInList<T>(this T item)
         {
             var list = new List<T>() { item };
             return list;

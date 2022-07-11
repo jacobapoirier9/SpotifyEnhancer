@@ -164,8 +164,11 @@ namespace Spotify.Web.Controllers
                 {
                     var recommendations = _spotify.Get(new GetRecommendations
                     {
-                        seed_tracks = new List<string>() { track.Id },
-                        seed_artists = track.AllUniqueArtists.Select(a => a.Id).ToList()
+                        seed_tracks = track.Id.PutInList(),
+                        seed_artists = track.AllUniqueArtists.Select(a => a.Id).ToList(),
+
+                        SeedTracks = track.Id.PutInList(),
+                        SeedArtists = track.AllUniqueArtists.Select(a => a.Id).ToList()
                     }).Tracks;
 
                     _cache.Save(_username, nameof(CachedRecommendations), recommendations);
@@ -174,7 +177,7 @@ namespace Spotify.Web.Controllers
                 return View("TrackSingle", new TrackSingleViewModel
                 {
                     Track = track,
-                    IsLiked = _spotify.Get(new GetTrackIsLiked { Ids = trackId.AsList() }).First()
+                    IsLiked = _spotify.Get(new GetTrackIsLiked { Ids = trackId.PutInList() }).First()
                 });
             }
         }

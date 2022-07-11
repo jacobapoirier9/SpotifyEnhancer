@@ -12,6 +12,7 @@ using NLog;
 using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
+using ServiceStack.Text;
 using Spotify.Library;
 using Spotify.Library.Core;
 using Spotify.Library.Services;
@@ -140,6 +141,7 @@ namespace Spotify.Web
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
 
 
+            JsConfig.TextCase = TextCase.SnakeCase;
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {
                 BaseUri = _configuration.GetValue<string>("Spotify:ApiUri"),
@@ -220,6 +222,8 @@ namespace Spotify.Web
                 endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            
 
             _logger.Debug("URLs: {URLs}", app.ApplicationServices.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.JoinToString(", "));
         }

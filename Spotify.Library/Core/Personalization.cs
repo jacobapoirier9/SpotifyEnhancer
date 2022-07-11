@@ -14,9 +14,11 @@ namespace Spotify.Library.Core
     {
         [Alias("seed_tracks")]
         [DataMember(Name = "seed_tracks")]
-        public List<string> seed_tracks { get; set; }
+        public List<string> SeedTracks { get; set; }
 
+
+        [Alias("seed_artists")]
         [DataMember(Name = "seed_artists")]
-        public List<string> seed_artists { get; set; }
+        public List<string> SeedArtists { get; set; }
     }
 }
