@@ -25,7 +25,8 @@ var helpers = {
     },
     createGridModel: function (options) {
         var defaults = {
-            datatype: 'local',
+            datatype: 'json',
+            mtype: "JSON",
             emptyrecords: 'No records to display',
             gridview: true,
             loadonce: true,
@@ -64,6 +65,11 @@ var helpers = {
                 }, 350);
             }).trigger("resize");
         },
+    },
+    icons: {
+        toggle: function (element) {
+            console.debug(element);
+        }
     },
     modal: {
         setData: function (selector, formData) {

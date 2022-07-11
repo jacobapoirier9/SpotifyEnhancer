@@ -8,7 +8,7 @@ namespace Spotify.Web.Models.Database
 {
     [Schema("Spotify")]
     [Alias("Groups")]
-    public class DbGroup2
+    public class DbGroup
     {
         public string Username { get; set; }
 

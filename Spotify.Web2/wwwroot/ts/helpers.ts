@@ -25,7 +25,8 @@
 
     createGridModel(options: JqGridOptions): JqGridOptions {
         var defaults: JqGridOptions = {
-            datatype: 'local',
+            datatype: 'json',
+            mtype: "JSON",
             emptyrecords: 'No records to display',
             gridview: true,
             loadonce: true,
@@ -65,6 +66,12 @@
                 }, 350);
             }).trigger("resize");
         },
+    },
+
+    icons: {
+        toggle(element: HTMLElement) {
+            console.debug(element)
+        }
     },
 
     modal: {

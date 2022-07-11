@@ -14,14 +14,6 @@ var colModels = {
             return {};
         }
     },
-    album: {
-        id: function () { return { hidden: true, name: "Id" }; },
-        name: function () { return { name: "Name", label: "Album" }; }
-    },
-    artist: {
-        id: function () { return { hidden: true, name: "Id" }; },
-        name: function () { return { name: "Name", label: "Artist" }; }
-    },
     group: {
         groupId: function () { return { hidden: true, name: "GroupId" }; },
         itemId: function () { return { hidden: true, name: "ItemId" }; },
@@ -37,59 +29,10 @@ var colModels = {
                 formatter: function (cellValue, info, model, action) {
                     var icon = "";
                     icon = cellValue ? "fa-minus" : "fa-plus";
-                    return "<span><i class='fa " + icon + "'></i></span>";
+                    return "<span class=\"toggle\"><i class='fa " + icon + "' data-next-icon=\"\"></i></span>";
                 }
             };
         }
-    }
-};
-var gridModels = {
-    track: function (override) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.track.id(),
-                colModels.track.name()
-            ]
-        });
-        $.extend(model, override);
-        return model;
-    },
-    album: function (override) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.album.id(),
-                colModels.album.name()
-            ]
-        });
-        $.extend(model, override);
-        return model;
-    },
-    artist: function (override) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.artist.id(),
-                colModels.artist.name()
-            ]
-        });
-        $.extend(model, override);
-        return model;
-    },
-    group: function (override) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.group.groupId(),
-                colModels.group.itemId(),
-                colModels.group.groupName(),
-                colModels.group.numberOfTracks(),
-                colModels.group.isMember()
-            ]
-        });
-        $.extend(model, override);
-        return model;
     }
 };
 var spotify = {
@@ -134,23 +77,34 @@ var spotify = {
     page: {
         groupSingle: {
             init: function () {
-                var $tracksGrid = $("#tracksGrid").jqGrid(gridModels.track({
+                var $tracksGrid = $("#tracksGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedTracks"),
-                    mtype: "POST"
+                    colModel: [
+                        colModels.track.id(),
+                        colModels.track.name()
+                    ]
                 }));
                 helpers.grid.resizeGridOnWindowResize($tracksGrid);
             }
         },
         trackSingle: {
             init: function () {
-                var $trackGroupsGrid = $("#trackGroupsGrid").jqGrid(gridModels.group({
+                var $trackGroupsGrid = $("#trackGroupsGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedGroups"),
-                    mtype: "POST"
+                    colModel: [
+                        colModels.group.groupId(),
+                        colModels.group.itemId(),
+                        colModels.group.groupName(),
+                        colModels.group.isMember()
+                    ]
                 }));
                 helpers.grid.setGridWidthToParentWidth($trackGroupsGrid);
-                var $recommendationsGrid = $("#recommendationsGrid").jqGrid(gridModels.track({
+                var $recommendationsGrid = $("#recommendationsGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedRecommendations"),
-                    mtype: "POST"
+                    colModel: [
+                        colModels.track.id(),
+                        colModels.track.name()
+                    ]
                 }));
                 helpers.grid.setGridWidthToParentWidth($recommendationsGrid);
                 $recommendationsGrid.jqGrid("setGridHeight", 500);
@@ -158,10 +112,14 @@ var spotify = {
         },
         groupsMultiple: {
             init: function () {
-                var $groupsGrid = $("#groupsGrid").jqGrid(gridModels.group({
+                var $groupsGrid = $("#groupsGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedGroups"),
-                    mtype: "POST",
-                    rowNum: 20
+                    colModel: [
+                        colModels.group.groupId(),
+                        colModels.group.itemId(),
+                        colModels.group.groupName(),
+                        colModels.group.numberOfTracks()
+                    ]
                 }));
                 helpers.grid.resizeGridOnWindowResize($groupsGrid);
             }

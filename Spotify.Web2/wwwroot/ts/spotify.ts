@@ -19,14 +19,6 @@ var colModels = {
             } as ColModelOptions
         }
     },
-    album: {
-        id() { return { hidden: true, name: "Id" } as ColModelOptions },
-        name() { return { name: "Name", label: "Album" } as ColModelOptions }
-    },
-    artist: {
-        id() { return { hidden: true, name: "Id" } as ColModelOptions },
-        name() { return { name: "Name", label: "Artist" } as ColModelOptions }
-    },
     group: {
         groupId() { return { hidden: true, name: "GroupId" } as ColModelOptions },
         itemId() { return { hidden: true, name: "ItemId" } as ColModelOptions },
@@ -42,67 +34,12 @@ var colModels = {
                 formatter: (cellValue, info, model, action) => {
                     var icon = ""
                     icon = cellValue ? "fa-minus" : "fa-plus"
-                    return `<span><i class='fa ${icon}'></i></span>`
+                    return `<span class="toggle"><i class='fa ${icon}' data-next-icon=""></i></span>`
                 }
             } as ColModelOptions
         }
     }
 }
-
-var gridModels = {
-    track(override: JqGridOptions) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.track.id(),
-                colModels.track.name()
-            ]
-        })
-
-        $.extend(model, override)
-        return model
-    },
-    album(override: JqGridOptions) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.album.id(),
-                colModels.album.name()
-            ]
-        })
-
-        $.extend(model, override)
-        return model
-    },
-    artist(override: JqGridOptions) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.artist.id(),
-                colModels.artist.name()
-            ]
-        })
-
-        $.extend(model, override)
-        return model
-    },
-    group(override: JqGridOptions) {
-        var model = helpers.createGridModel({
-            datatype: "json",
-            colModel: [
-                colModels.group.groupId(),
-                colModels.group.itemId(),
-                colModels.group.groupName(),
-                colModels.group.numberOfTracks(),
-                colModels.group.isMember()
-            ]
-        })
-
-        $.extend(model, override)
-        return model
-    }
-}
-
 
 var spotify = {
 
@@ -149,9 +86,12 @@ var spotify = {
     page: {
         groupSingle: {
             init() {
-                var $tracksGrid = $("#tracksGrid").jqGrid(gridModels.track({
+                var $tracksGrid = $("#tracksGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedTracks"),
-                    mtype: "POST"
+                    colModel: [
+                        colModels.track.id(),
+                        colModels.track.name()
+                    ]
                 }))
 
                 helpers.grid.resizeGridOnWindowResize($tracksGrid)
@@ -159,16 +99,23 @@ var spotify = {
         },
         trackSingle: {
             init() {
-                var $trackGroupsGrid = $("#trackGroupsGrid").jqGrid(gridModels.group({
+                var $trackGroupsGrid = $("#trackGroupsGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedGroups"),
-                    mtype: "POST"
+                    colModel: [
+                        colModels.group.groupId(),
+                        colModels.group.itemId(),
+                        colModels.group.groupName(),
+                        colModels.group.isMember() 
+                    ]
                 }))
-
                 helpers.grid.setGridWidthToParentWidth($trackGroupsGrid)
 
-                var $recommendationsGrid = $("#recommendationsGrid").jqGrid(gridModels.track({
+                var $recommendationsGrid = $("#recommendationsGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedRecommendations"),
-                    mtype: "POST"
+                    colModel: [
+                        colModels.track.id(),
+                        colModels.track.name()
+                    ]
                 }))
 
                 helpers.grid.setGridWidthToParentWidth($recommendationsGrid)
@@ -177,10 +124,14 @@ var spotify = {
         },
         groupsMultiple: {
             init() {
-                var $groupsGrid = $("#groupsGrid").jqGrid(gridModels.group({
+                var $groupsGrid = $("#groupsGrid").jqGrid(helpers.createGridModel({
                     url: router.route("/Spotify/CachedGroups"),
-                    mtype: "POST",
-                    rowNum: 20
+                    colModel: [
+                        colModels.group.groupId(),
+                        colModels.group.itemId(),
+                        colModels.group.groupName(),
+                        colModels.group.numberOfTracks()
+                    ]
                 }))
 
                 helpers.grid.resizeGridOnWindowResize($groupsGrid)
