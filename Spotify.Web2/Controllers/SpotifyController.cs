@@ -86,7 +86,23 @@ namespace Spotify.Web.Controllers
                 }
                 else
                 {
-                    var groups = db.Select<Group>(query);
+                    query.LeftJoin<DbRelationship>((g, r) => g.GroupId == r.GroupId)
+                        .GroupBy(g => new
+                        {
+                            g.Username,
+                            g.GroupId,
+                            g.GroupName
+                        })
+                        .Select<DbGroup2, DbRelationship>((g, r) => new
+                        {
+                            g.Username,
+                            g.GroupId,
+                            g.GroupName,
+                            TrackCount = Sql.Count(r.TrackId)
+                        });
+
+                    var groups = db.Select<Group>(query)
+                        ;
                     _cache.Save(_username, nameof(CachedGroups), groups);
 
                     return View("GroupsMultiple");
@@ -142,7 +158,6 @@ namespace Spotify.Web.Controllers
 
             //var audioFeatures = _spotify.Get(new GetAudioFeatures { Id = trackId });
             //_cache.Save(username, audioFeatures);
-
 
             using (var db = _database.Open())
             {

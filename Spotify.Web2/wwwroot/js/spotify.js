@@ -26,9 +26,14 @@ var colModels = {
         groupId: function () { return { hidden: true, name: "GroupId" }; },
         itemId: function () { return { hidden: true, name: "ItemId" }; },
         groupName: function () { return { name: "GroupName", label: "Group" }; },
+        numberOfTracks: function () {
+            return {
+                name: "TrackCount", label: "Tracks"
+            };
+        },
         isMember: function () {
             return {
-                name: "IsMember", label: "Is Member", width: 40, align: "right",
+                name: "IsMember", label: "Is Member", width: 20,
                 formatter: function (cellValue, info, model, action) {
                     var icon = "";
                     icon = cellValue ? "fa-minus" : "fa-plus";
@@ -79,6 +84,7 @@ var gridModels = {
                 colModels.group.groupId(),
                 colModels.group.itemId(),
                 colModels.group.groupName(),
+                colModels.group.numberOfTracks(),
                 colModels.group.isMember()
             ]
         });

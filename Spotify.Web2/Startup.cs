@@ -36,6 +36,44 @@ namespace Spotify.Web
             _configuration = configuration;
         }
 
+        private static void AddSqlLogger()
+        {
+            OrmLiteConfig.BeforeExecFilter = sqlCmd =>
+            {
+                var builder = new System.Text.StringBuilder();
+
+                builder.AppendLine();
+                builder.AppendLine(sqlCmd.Connection.ConnectionString);
+
+                foreach (SqlParameter parm in sqlCmd.Parameters)
+                {
+                    // Determine the raw sql value
+                    var sqlValue = parm.SqlDbType switch
+                    {
+                        SqlDbType.VarChar or SqlDbType.NVarChar or SqlDbType.DateTime
+                        => $"'{parm.Value}'",
+
+                        _ => parm.Value
+                    };
+
+                    // Determine the datatype (apply overrides)
+                    var sqlDbType = parm.SqlDbType switch
+                    {
+                        SqlDbType.VarChar => $"{SqlDbType.NVarChar}(1000)",
+
+                        _ => parm.SqlDbType.ToString()
+                    };
+
+                    builder.AppendLine($"declare {parm.ParameterName} {sqlDbType} = {sqlValue}");
+                }
+
+                builder.AppendLine();
+                builder.AppendLine(sqlCmd.CommandText);
+                builder.AppendLine();
+
+                _logger.Trace("Running SQL: {SQL}", builder.ToString());
+            };
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -105,36 +143,13 @@ namespace Spotify.Web
                     options.Cookie.SameSite = SameSiteMode.Lax;
                 });
 
-
             services.AddAuthorization();
 
+
             services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(_configuration["ConnectionStrings:SteamRoller"], SqlServerDialect.Provider));
-            if (_configuration.GetValue<bool>("DeepLogging:SQL"))
+            if (_configuration.GetValue<bool>("TraceLogging:Sql"))
             {
-                OrmLiteConfig.BeforeExecFilter = sqlCmd =>
-                {
-                    var builder = new System.Text.StringBuilder();
-                    builder.AppendLine();
-                    builder.AppendLine(sqlCmd.Connection.ConnectionString);
-                    foreach (SqlParameter parm in sqlCmd.Parameters)
-                    {
-
-                        var sqlValue = parm.SqlDbType switch
-                        {
-                            SqlDbType.VarChar or SqlDbType.NVarChar or SqlDbType.DateTime
-                            => $"'{parm.Value}'",
-
-                            _ => parm.Value
-                        };
-
-                        builder.AppendLine($"declare {parm.ParameterName} {parm.SqlDbType} = {sqlValue}");
-                    }
-                    builder.AppendLine();
-                    builder.AppendLine(sqlCmd.CommandText);
-                    builder.AppendLine();
-
-                    _logger.Trace("Running SQL: {NewLine} {SQL}", Environment.NewLine, builder.ToString());
-                };
+                AddSqlLogger();
             }
 
             services.AddSingleton<ICustomCache, CustomFileSystemCache>();
@@ -145,53 +160,47 @@ namespace Spotify.Web
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {
                 BaseUri = _configuration.GetValue<string>("Spotify:ApiUri"),
-
-                // Moving all the logic here, so that all settings are read at start up, rather than with each Spotify request.
-                ResponseFilter =
-                    _configuration.GetValue<bool>("DeepLogging:API") ?
-                        (
-                            _configuration.GetValue<bool>("DeepLogging:ReadApiStream") ?
-                                (response) =>
-                                {
-                                    _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
-                                    using (var stream = response.GetResponseStream())
-                                    using (var reader = new StreamReader(stream))
-                                    {
-                                        _logger.Trace(reader.ReadToEnd());
-                                    }
-                                }
-                :
-                                (response) =>
-                                {
-                                    _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
-                                }
-                        ) :
-                        null,
-                ExceptionFilter = (exception, response, str, type) =>
-                {
-                    var httpResponse = (HttpWebResponse)response;
-                    _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)httpResponse.StatusCode, httpResponse.StatusDescription, httpResponse.ResponseUri);
-
-                    _logger.Error("HTTP: {Error}", exception.Message);
-
-                    using (var stream = response.GetResponseStream())
-                    using (var reader = new StreamReader(stream))
-                    {
-                        var json = reader.ReadToEnd();
-
-                        if (json is null) // An error occurred before reaching the endpoint (HTTP Error)
-                        {
-                            throw exception;
-                        }
-                        else // An error occurred after reaching the endpoint (Spotify Error)
-                        {
-                            var error = json.FromJson<ErrorWrapper>();
-                            _logger.Error("Spotify: {Error}", error.Error.Message);
-                            throw new Exception(error.Error.Message);
-                        }
-                    }
-                }
+                ResponseFilter =_configuration.GetValue<bool>("TraceLogging:ApiDirtyReads") ? LogApiResponseDirty : LogApiResponse,
+                ExceptionFilter = LogApiException
             });
+        }
+
+        private ExceptionFilterDelegate LogApiException(WebException exception, WebResponse response, string str, Type type)
+        {
+            LogApiResponse((HttpWebResponse)response);
+            _logger.Error("HTTP: {Error}", exception.Message);
+
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream))
+            {
+                var json = reader.ReadToEnd();
+
+                if (json is null) // An error occurred before reaching the endpoint (HTTP Error)
+                {
+                    throw exception;
+                }
+                else // An error occurred after reaching the endpoint (Spotify Error)
+                {
+                    var error = json.FromJson<ErrorWrapper>();
+                    _logger.Error("Spotify: {Error}", error.Error.Message);
+                    throw new Exception(error.Error.Message);
+                }
+            }
+        }
+
+        private void LogApiResponse(HttpWebResponse response)
+        {
+            _logger.Trace("{StatusCode} {StatusDescription}: {RequestUri}", (int)response.StatusCode, response.StatusDescription, response.ResponseUri);
+        }
+
+        private void LogApiResponseDirty(HttpWebResponse response)
+        {
+            LogApiResponse(response);
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream))
+            {
+                _logger.Trace(reader.ReadToEnd());
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -208,6 +217,7 @@ namespace Spotify.Web
             {
                 app.UseExceptionHandler("/Error");
             }
+
             app.UseWebOptimizer();
             app.UseHttpsRedirection();
 
@@ -222,8 +232,6 @@ namespace Spotify.Web
                 endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            
 
             _logger.Debug("URLs: {URLs}", app.ApplicationServices.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.JoinToString(", "));
         }

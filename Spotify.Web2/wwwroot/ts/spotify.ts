@@ -31,9 +31,14 @@ var colModels = {
         groupId() { return { hidden: true, name: "GroupId" } as ColModelOptions },
         itemId() { return { hidden: true, name: "ItemId" } as ColModelOptions },
         groupName() { return { name: "GroupName", label: "Group" } as ColModelOptions },
+        numberOfTracks() {
+            return {
+                name: "TrackCount", label: "Tracks"
+            } as ColModelOptions
+        },
         isMember() {
             return {
-                name: "IsMember", label: "Is Member", width: 40, align: "right",
+                name: "IsMember", label: "Is Member", width: 20,
                 formatter: (cellValue, info, model, action) => {
                     var icon = ""
                     icon = cellValue ? "fa-minus" : "fa-plus"
@@ -88,6 +93,7 @@ var gridModels = {
                 colModels.group.groupId(),
                 colModels.group.itemId(),
                 colModels.group.groupName(),
+                colModels.group.numberOfTracks(),
                 colModels.group.isMember()
             ]
         })
