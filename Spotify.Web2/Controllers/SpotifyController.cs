@@ -74,10 +74,8 @@ namespace Spotify.Web.Controllers
                         .Where(g => g.Username == _username && g.GroupId == groupId.Value)
                         .Select<DbRelationship>(r => r.TrackId);
 
-                    var trackIds = db.Select<string>(subQuery);
-
                     var tracks = new List<Track>();
-                    trackIds.StepUtility(50, dataSet =>
+                    db.Select<string>(subQuery).ExecuteInChunks(50, dataSet =>
                     {
                         tracks.AddRange(_spotify.Get(new GetTracks { Ids = dataSet }).Tracks);
                     });
@@ -159,7 +157,7 @@ namespace Spotify.Web.Controllers
                 return View("TrackSingle", new TrackSingleViewModel
                 {
                     Track = track,
-                    IsLiked = _spotify.Get(new GetTrackIsLiked { Ids = new List<string>() { trackId } }).First()
+                    IsLiked = _spotify.Get(new GetTrackIsLiked { Ids = trackId.AsList() }).First()
                 });
             }
         }

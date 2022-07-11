@@ -39,22 +39,28 @@ namespace Spotify.Web
             }
         }
 
-        public static void StepUtility<T>(this IEnumerable<T> items, int increment, Action<List<T>> action)
+        public static void ExecuteInChunks<T>(this IEnumerable<T> items, int chunkSize, Action<List<T>> operationPerChunk)
         {
             var list = items.ToList();
-            for (var i = 0; i < list.Count; i += increment)
+            for (var i = 0; i < list.Count; i += chunkSize)
             {
                 // Just don't ask me how this works :)
                 var count =
-                    i + increment > list.Count ?
-                        (list.Count - increment < 0 ?
+                    i + chunkSize > list.Count ?
+                        (list.Count - chunkSize < 0 ?
                             list.Count :
-                            list.Count - increment) :
-                        increment;
+                            list.Count - chunkSize) :
+                        chunkSize;
 
                 var range = list.GetRange(i, count);
-                action.Invoke(range);
+                operationPerChunk.Invoke(range);
             }
+        }
+
+        public static List<T> AsList<T>(this T item)
+        {
+            var list = new List<T>() { item };
+            return list;
         }
     }
 }
