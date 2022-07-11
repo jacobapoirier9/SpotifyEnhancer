@@ -14,33 +14,6 @@ namespace Spotify.Web
 {
     public static class Helpers
     {
-        public static object To(this IConvertible item, Type type)
-        {
-            return Convert.ChangeType(item, type);
-        }
-
-        /// <summary>
-        /// Converts an object to a given type
-        /// </summary>
-        public static T To<T>(this object item) where T : IConvertible
-        {
-            return (T)Convert.ChangeType(item, typeof(T));
-        }
-
-        /// <summary>
-        /// Converts a list of object to a given type
-        /// </summary>
-        public static List<T> To<T>(this IEnumerable<object> items) where T : IConvertible
-        {
-            var toReturn = new List<T>();
-            foreach (var item in items)
-            {
-                toReturn.Add(((IConvertible)item).To<T>());
-            }
-
-            return toReturn;
-        }
-
         public static void AddClaim<T>(this ICollection<Claim> claims, string claimType, T value)
         {
             if (value is IConvertible convertable)
@@ -50,9 +23,7 @@ namespace Spotify.Web
         }
 
 
-        public static T Claim<T>(this IHttpContextAccessor context, string claimType) => context.HttpContext.User.Claim<T>(claimType);
         public static T Claim<T>(this Controller controller, string claimType) => controller.User.Claim<T>(claimType);
-        public static T Claim<T>(this Controller controller) => controller.User.Claim<T>(typeof(T).Name);
         public static T Claim<T>(this ClaimsPrincipal principal, string claimType)
         {
             var type = typeof(T);
@@ -68,155 +39,22 @@ namespace Spotify.Web
             }
         }
 
-        public static ArrayGrid<T> ToArrayGrid<T>(this IEnumerable<T> items, int numberOfCols)
+        public static void StepUtility<T>(this IEnumerable<T> items, int increment, Action<List<T>> action)
         {
-            var count = items.Count();
-            var numberOfRows = count / numberOfCols;
-
-            if (count > numberOfRows * numberOfCols)
-                numberOfRows++;
-
-            var e = items.GetEnumerator();
-            var grid = new T[numberOfRows, numberOfCols];
-            for (var r = 0; r < numberOfRows; r++)
+            var list = items.ToList();
+            for (var i = 0; i < list.Count; i += increment)
             {
-                for (var c = 0; c < numberOfCols; c++)
-                {
-                    grid[r, c] = e.MoveNext() ? e.Current : default(T);
-                }
+                // Just don't ask me how this works :)
+                var count =
+                    i + increment > list.Count ?
+                        (list.Count - increment < 0 ?
+                            list.Count :
+                            list.Count - increment) :
+                        increment;
+
+                var range = list.GetRange(i, count);
+                action.Invoke(range);
             }
-
-            return new ArrayGrid<T>()
-            {
-                Grid = grid,
-                List = items.ToList(),
-                NumberOfCols = numberOfCols,
-                NumberOfRows = numberOfRows,
-                Length = count
-            };
         }
-
-
-
-
-        /// <summary>
-        /// Repeats a string a number of times
-        /// </summary>
-        public static string Repeat(this string str, int count)
-        {
-            var toReturn = "";
-            for (var i = 0; i < count; i++)
-            {
-                toReturn += str;
-            }
-            return toReturn;
-        }
-
-        /// <summary>
-        /// Builds a minified json string
-        /// </summary>
-        public static string MinifyJson(string json)
-        {
-            var builder = new StringBuilder();
-            var isInQuotes = false;
-            var lastChar = char.MinValue;
-
-            foreach (var letter in json)
-            {
-                if (isInQuotes)
-                {
-                    switch (letter)
-                    {
-                        case '"':
-                            builder.Append(letter);
-                            isInQuotes = false;
-                            break;
-                        default:
-                            builder.Append(letter);
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (letter)
-                    {
-                        case ' ':
-                        case '\n':
-                        case '\r':
-                        case '\t':
-                            break;
-
-                        case '"':
-
-                            if (lastChar == '\\')
-                            {
-
-                            }
-                            else
-                            {
-                                builder.Append(letter);
-                                isInQuotes = true;
-                            }
-
-                            break;
-                        default:
-                            builder.Append(letter);
-                            break;
-                    }
-                }
-
-                lastChar = letter;
-            }
-
-            return builder.ToString();
-        }
-
-        /// <summary>
-        /// Builds a nicely formatted json string
-        /// </summary>
-        public static string PrettyPrintJson(string json)
-        {
-            json = MinifyJson(json);
-
-            var builder = new StringBuilder();
-            var tabIndex = 0;
-            var toRepeat = "\t";
-
-            foreach (var letter in json)
-            {
-                switch (letter)
-                {
-                    case '{':
-                    case '[':
-                        tabIndex++;
-                        builder.Append(letter);
-                        builder.Append(Environment.NewLine + toRepeat.Repeat(tabIndex));
-                        break;
-
-                    case '}':
-                    case ']':
-                        tabIndex--;
-                        builder.Append(Environment.NewLine + toRepeat.Repeat(tabIndex));
-                        builder.Append(letter);
-                        break;
-
-                    case ':':
-                        builder.Append(letter + " ");
-                        break;
-
-                    case ',':
-                        builder.Append(letter);
-                        builder.Append(Environment.NewLine + toRepeat.Repeat(tabIndex));
-                        break;
-
-                    default:
-                        builder.Append(letter);
-                        break;
-                }
-            }
-
-            return builder.ToString();
-        }
-
     }
 }

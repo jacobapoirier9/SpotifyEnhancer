@@ -9,7 +9,10 @@ var actions = {
 var colModels = {
     track: {
         id: function () { return { hidden: true, name: "Id" }; },
-        name: function () { return { name: "Name", label: "Track" }; }
+        name: function () { return { name: "Name", label: "Track" }; },
+        artists: function () {
+            return {};
+        }
     },
     album: {
         id: function () { return { hidden: true, name: "Id" }; },
@@ -126,20 +129,10 @@ var spotify = {
         groupSingle: {
             init: function () {
                 var $tracksGrid = $("#tracksGrid").jqGrid(gridModels.track({
-                    url: router.route("/Spotify/GetTracksFromCache"),
-                    mtype: "POST"
-                }));
-                var $albumsGrid = $("#albumsGrid").jqGrid(gridModels.album({
-                    url: router.route("/Spotify/GetAlbumsFromCache"),
-                    mtype: "POST"
-                }));
-                var $artistsGrid = $("#artistsGrid").jqGrid(gridModels.artist({
-                    url: router.route("/Spotify/GetArtistsFromCache"),
+                    url: router.route("/Spotify/CachedTracks"),
                     mtype: "POST"
                 }));
                 helpers.grid.resizeGridOnWindowResize($tracksGrid);
-                helpers.grid.resizeGridOnWindowResize($albumsGrid);
-                helpers.grid.resizeGridOnWindowResize($artistsGrid);
             }
         },
         trackSingle: {
@@ -153,14 +146,16 @@ var spotify = {
                     url: router.route("/Spotify/GetRecommendations"),
                     mtype: "POST"
                 }));
-                helpers.grid.resizeGridOnWindowResize($recommendationsGrid);
+                helpers.grid.setGridWidthToParentWidth($recommendationsGrid);
+                $recommendationsGrid.jqGrid("setGridHeight", 500);
             }
         },
         groupsMultiple: {
             init: function () {
                 var $groupsGrid = $("#groupsGrid").jqGrid(gridModels.group({
                     url: router.route("/Spotify/CachedGroups"),
-                    mtype: "POST"
+                    mtype: "POST",
+                    rowNum: 20
                 }));
                 helpers.grid.resizeGridOnWindowResize($groupsGrid);
             }

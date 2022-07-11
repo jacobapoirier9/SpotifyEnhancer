@@ -62,19 +62,27 @@ namespace Spotify.Web.Controllers
             using (var db = _database.Open())
             {
                 var query = db.From<DbGroup2>()
-                    .Where(g => g.Username == _username);
+                    .Where<DbGroup2>(g => g.Username == _username);
 
                 if (groupId.HasValue)
                 {
-                    query.Where(g => g.GroupId == groupId.Value);
-
+                    query.Where<DbGroup2>(g => g.GroupId == groupId.Value);
                     var group = db.Single<Group>(query);
 
-                    query.Join<DbRelationship>((g, r) => g.GroupId == r.GroupId)
+                    var subQuery = db.From<DbGroup2>()
+                        .Join<DbRelationship>((g, r) => g.GroupId == r.GroupId)
+                        .Where(g => g.Username == _username && g.GroupId == groupId.Value)
                         .Select<DbRelationship>(r => r.TrackId);
 
-                    var trackIds = db.Select<string>(query);
+                    var trackIds = db.Select<string>(subQuery);
 
+                    var tracks = new List<Track>();
+                    trackIds.StepUtility(50, dataSet =>
+                    {
+                        tracks.AddRange(_spotify.Get(new GetTracks { Ids = dataSet }).Tracks);
+                    });
+
+                    _cache.Save(_username, nameof(CachedTracks), tracks);
 
                     return View("GroupSingle", group);
                 }
@@ -92,6 +100,12 @@ namespace Spotify.Web.Controllers
         {
             var groups = _cache.Get<List<Group>>(_username, nameof(CachedGroups));
             return Json(groups);
+        }
+
+        public IActionResult CachedTracks()
+        {
+            var tracks = _cache.Get<List<Track>>(_username, nameof(CachedTracks));
+            return Json(tracks);
         }
 
         //[Ajax]
@@ -153,16 +167,27 @@ namespace Spotify.Web.Controllers
         public IActionResult GetRecommendations()
         {
             var track = _cache.Get<Track>(_username);
+            var key = nameof(GetRecommendations) + "." + track.Name;
 
-            var recommendations = _spotify.Get(new GetRecommendations
+            if (_cache.HasKey(_username, key))
             {
-                seed_tracks = new List<string>() { track.Id },
-                seed_artists = track.AllUniqueArtists.Select(a => a.Id).ToList()
-            });
+                _logger.Trace("Reading recommendations from cache for track {Track}", track.Name);
+                var recommendations = _cache.Get<MultipleTracksWrapper>(_username, key);
+                return Json(recommendations.Tracks);
+            }
+            else
+            {
+                _logger.Trace("Reading recommendations from spotify api for track {Track}", track.Name);
+                var recommendations = _spotify.Get(new GetRecommendations
+                {
+                    seed_tracks = new List<string>() { track.Id },
+                    seed_artists = track.AllUniqueArtists.Select(a => a.Id).ToList()
+                });
 
-            _cache.Save(_username, track.Name + "." + nameof(GetRecommendations) + "." + DateTime.Now.ToString("hh.mm.ss"), recommendations);
+                _cache.Save(_username, key, recommendations);
+                return Json(recommendations.Tracks);
+            }
 
-            return Json(recommendations.Tracks);
         }
 
 

@@ -12,7 +12,12 @@ var actions = {
 var colModels = {
     track: {
         id() { return { hidden: true, name: "Id" } as ColModelOptions },
-        name() { return { name: "Name", label: "Track" } as ColModelOptions }
+        name() { return { name: "Name", label: "Track" } as ColModelOptions },
+        artists() {
+            return {
+
+            } as ColModelOptions
+        }
     },
     album: {
         id() { return { hidden: true, name: "Id" } as ColModelOptions },
@@ -139,23 +144,11 @@ var spotify = {
         groupSingle: {
             init() {
                 var $tracksGrid = $("#tracksGrid").jqGrid(gridModels.track({
-                    url: router.route("/Spotify/GetTracksFromCache"),
-                    mtype: "POST"
-                }))
-
-                var $albumsGrid = $("#albumsGrid").jqGrid(gridModels.album({
-                    url: router.route("/Spotify/GetAlbumsFromCache"),
-                    mtype: "POST"
-                }))
-
-                var $artistsGrid = $("#artistsGrid").jqGrid(gridModels.artist({
-                    url: router.route("/Spotify/GetArtistsFromCache"),
+                    url: router.route("/Spotify/CachedTracks"),
                     mtype: "POST"
                 }))
 
                 helpers.grid.resizeGridOnWindowResize($tracksGrid)
-                helpers.grid.resizeGridOnWindowResize($albumsGrid)
-                helpers.grid.resizeGridOnWindowResize($artistsGrid)
             }
         },
         trackSingle: {
@@ -172,14 +165,16 @@ var spotify = {
                     mtype: "POST"
                 }))
 
-                helpers.grid.resizeGridOnWindowResize($recommendationsGrid)
+                helpers.grid.setGridWidthToParentWidth($recommendationsGrid)
+                $recommendationsGrid.jqGrid("setGridHeight", 500)
             }
         },
         groupsMultiple: {
             init() {
                 var $groupsGrid = $("#groupsGrid").jqGrid(gridModels.group({
                     url: router.route("/Spotify/CachedGroups"),
-                    mtype: "POST"
+                    mtype: "POST",
+                    rowNum: 20
                 }))
 
                 helpers.grid.resizeGridOnWindowResize($groupsGrid)
