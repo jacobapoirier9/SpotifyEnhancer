@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using ServiceStack;
 using Spotify.Library;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -9,7 +10,12 @@ namespace Spotify.Web.Services
     public class CustomFileSystemCache : ICustomCache
     {
         private string _directoryPath;
-        public CustomFileSystemCache(IConfiguration config) => _directoryPath = config.Get<string>("CacheDirectory");
+        private TimeSpan _expiresAfter;
+        public CustomFileSystemCache(IConfiguration config)
+        {
+            _directoryPath = config.Get<string>("Cache:Directory");
+            _expiresAfter = TimeSpan.Parse(config.Get<string>("Cache:ExpiresAfter"));
+        }
 
 
         private static readonly char[] _invalidChars = Path.GetInvalidFileNameChars();
@@ -36,6 +42,19 @@ namespace Spotify.Web.Services
         public bool HasKey(string username, string key) => File.Exists(CacheFileName(username, key));
 
         public void Save<T>(string username, T dto) => Save(username, typeof(T).Name, dto);
-        public void Save<T>(string username, string key, T dto) => File.WriteAllText(CacheFileName(username, key), dto.ToJson()); 
+        public void Save<T>(string username, string key, T dto) => File.WriteAllText(CacheFileName(username, key), dto.ToJson());
+
+        public bool IsExpired<T>(string username) => IsExpired(username, typeof(T).Name);
+        public bool IsExpired(string username, string key)
+        {
+            if (HasKey(username, key))
+            {
+                var lastWrite = File.GetLastWriteTime(CacheFileName(username, key));
+                var expires = lastWrite.Add(_expiresAfter);
+                return DateTime.Now > expires;
+            }
+            else
+                return true;
+        }
     }
 }

@@ -57,6 +57,7 @@ namespace Spotify.Web
             }
         }
 
+
         public static List<T> AsList<T>(this T item)
         {
             var list = new List<T>() { item };

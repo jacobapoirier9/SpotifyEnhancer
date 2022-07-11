@@ -161,7 +161,7 @@ var spotify = {
                 helpers.grid.setGridWidthToParentWidth($trackGroupsGrid)
 
                 var $recommendationsGrid = $("#recommendationsGrid").jqGrid(gridModels.track({
-                    url: router.route("/Spotify/GetRecommendations"),
+                    url: router.route("/Spotify/CachedRecommendations"),
                     mtype: "POST"
                 }))
 

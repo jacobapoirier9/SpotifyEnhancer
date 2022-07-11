@@ -11,5 +11,8 @@
 
         public void Save<T>(string username, T dto);
         public void Save<T>(string username, string key, T dto);
+
+        public bool IsExpired<T>(string username);
+        public bool IsExpired(string username, string key);
     }
 }

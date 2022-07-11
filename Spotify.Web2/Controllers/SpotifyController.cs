@@ -106,6 +106,12 @@ namespace Spotify.Web.Controllers
             return Json(tracks);
         }
 
+        public IActionResult CachedRecommendations()
+        {
+            var tracks = _cache.Get<List<Track>>(_username, nameof(CachedRecommendations));
+            return Json(tracks);
+        }
+
         //[Ajax]
         //[HttpPost]
         //public IActionResult SaveGroup(Group save)
@@ -154,38 +160,23 @@ namespace Spotify.Web.Controllers
                 var groups = db.Select<Group>(query);
                 _cache.Save(_username, nameof(CachedGroups), groups);
 
+                if (_cache.IsExpired(username, nameof(CachedRecommendations)))
+                {
+                    var recommendations = _spotify.Get(new GetRecommendations
+                    {
+                        seed_tracks = new List<string>() { track.Id },
+                        seed_artists = track.AllUniqueArtists.Select(a => a.Id).ToList()
+                    }).Tracks;
+
+                    _cache.Save(_username, nameof(CachedRecommendations), recommendations);
+                }
+
                 return View("TrackSingle", new TrackSingleViewModel
                 {
                     Track = track,
                     IsLiked = _spotify.Get(new GetTrackIsLiked { Ids = trackId.AsList() }).First()
                 });
             }
-        }
-
-        public IActionResult GetRecommendations()
-        {
-            var track = _cache.Get<Track>(_username);
-            var key = nameof(GetRecommendations) + "." + track.Name;
-
-            if (_cache.HasKey(_username, key))
-            {
-                _logger.Trace("Reading recommendations from cache for track {Track}", track.Name);
-                var recommendations = _cache.Get<MultipleTracksWrapper>(_username, key);
-                return Json(recommendations.Tracks);
-            }
-            else
-            {
-                _logger.Trace("Reading recommendations from spotify api for track {Track}", track.Name);
-                var recommendations = _spotify.Get(new GetRecommendations
-                {
-                    seed_tracks = new List<string>() { track.Id },
-                    seed_artists = track.AllUniqueArtists.Select(a => a.Id).ToList()
-                });
-
-                _cache.Save(_username, key, recommendations);
-                return Json(recommendations.Tracks);
-            }
-
         }
 
 
