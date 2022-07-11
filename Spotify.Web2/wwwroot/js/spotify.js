@@ -1,12 +1,47 @@
 /// <reference path="../lib/jquery/dist/jquery.d.ts" />
 /// <reference path="../lib/jqgrid/jqGrid.d.ts" />
+var actions = {
+    track: {
+        display: function () {
+        }
+    }
+};
+var colModels = {
+    track: {
+        id: function () { return { hidden: true, name: "Id" }; },
+        name: function () { return { name: "Name", label: "Track" }; }
+    },
+    album: {
+        id: function () { return { hidden: true, name: "Id" }; },
+        name: function () { return { name: "Name", label: "Album" }; }
+    },
+    artist: {
+        id: function () { return { hidden: true, name: "Id" }; },
+        name: function () { return { name: "Name", label: "Artist" }; }
+    },
+    group: {
+        groupId: function () { return { hidden: true, name: "GroupId" }; },
+        itemId: function () { return { hidden: true, name: "ItemId" }; },
+        groupName: function () { return { name: "GroupName", label: "Group" }; },
+        isMember: function () {
+            return {
+                name: "IsMember", label: "Is Member", width: 40, align: "right",
+                formatter: function (cellValue, info, model, action) {
+                    var icon = "";
+                    icon = cellValue ? "fa-plus" : "fa-circle";
+                    return "<span><i class='fa " + icon + "'></i></span>";
+                }
+            };
+        }
+    }
+};
 var gridModels = {
     track: function (override) {
         var model = helpers.createGridModel({
             datatype: "json",
             colModel: [
-                { hidden: true, name: "Id", label: "TrackId" },
-                { name: "Name", label: "Track" }
+                colModels.track.id(),
+                colModels.track.name()
             ]
         });
         $.extend(model, override);
@@ -16,8 +51,8 @@ var gridModels = {
         var model = helpers.createGridModel({
             datatype: "json",
             colModel: [
-                { hidden: true, name: "Id", label: "AlbumId" },
-                { name: "Name", label: "Album" }
+                colModels.album.id(),
+                colModels.album.name()
             ]
         });
         $.extend(model, override);
@@ -27,8 +62,8 @@ var gridModels = {
         var model = helpers.createGridModel({
             datatype: "json",
             colModel: [
-                { hidden: true, name: "Id", label: "ArtistId" },
-                { name: "Name", label: "Artist" }
+                colModels.artist.id(),
+                colModels.artist.name()
             ]
         });
         $.extend(model, override);
@@ -38,17 +73,10 @@ var gridModels = {
         var model = helpers.createGridModel({
             datatype: "json",
             colModel: [
-                { hidden: true, name: "GroupId" },
-                { hidden: true, name: "ItemId" },
-                { name: "GroupName", label: "Group" },
-                {
-                    name: "IsMember", label: "Is Member", width: 40, align: "right",
-                    formatter: function (cellValue, info, model, action) {
-                        var icon = "";
-                        icon = cellValue ? "fa-plus" : "fa-circle";
-                        return "<span><i class='fa " + icon + "'></i></span>";
-                    }
-                }
+                colModels.group.groupId(),
+                colModels.group.itemId(),
+                colModels.group.groupName(),
+                colModels.group.isMember()
             ]
         });
         $.extend(model, override);

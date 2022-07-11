@@ -160,7 +160,7 @@ namespace Spotify.Web.Controllers
                 seed_artists = track.AllUniqueArtists.Select(a => a.Id).ToList()
             });
 
-            _cache.Save(_username, track.Name + nameof(GetRecommendations) + DateTime.Now.ToString("hh.mm.ss"), recommendations);
+            _cache.Save(_username, track.Name + "." + nameof(GetRecommendations) + "." + DateTime.Now.ToString("hh.mm.ss"), recommendations);
 
             return Json(recommendations.Tracks);
         }
