@@ -13,7 +13,6 @@ namespace Spotify.Library.Core
     [Route("/artists")]
     public class GetArtists : IReturn<MultipleArtistsWrapper>, IGet
     {
-        [DataMember(Name = "ids")]
         public List<string> Ids { get; set; }
     }
 
@@ -23,22 +22,17 @@ namespace Spotify.Library.Core
 
     public class FullArtist : Artist
     {
-        [DataMember(Name = "followers")]
         public SpotifyEntityReferenceObject Followers { get; set; }
 
-        [DataMember(Name = "genres")]
         public List<string> Genres { get; set; }
 
-        [DataMember(Name = "images")]
         public List<SpotifyImage> Images { get; set; }
 
-        [DataMember(Name = "popularity")]
         public byte Popularity { get; set; }
     }
 
     public class MultipleArtistsWrapper
     {
-        [DataMember(Name = "artists")]
         public List<FullArtist> Artists { get; set; }
     }
 }

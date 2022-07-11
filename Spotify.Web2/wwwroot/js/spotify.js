@@ -31,7 +31,7 @@ var colModels = {
                 name: "IsMember", label: "Is Member", width: 40, align: "right",
                 formatter: function (cellValue, info, model, action) {
                     var icon = "";
-                    icon = cellValue ? "fa-plus" : "fa-minus";
+                    icon = cellValue ? "fa-minus" : "fa-plus";
                     return "<span><i class='fa " + icon + "'></i></span>";
                 }
             };
