@@ -10,9 +10,15 @@ var colModels = {
     track: {
         id: function () { return { hidden: true, name: "Id" }; },
         name: function () { return { name: "Name", label: "Track" }; },
-        artists: function () {
-            return {};
-        }
+        image: function () {
+            return {
+                name: "Album.Images", label: "Image",
+                formatter: function (cellValue, info, model, action) {
+                    var html = "<img src=" + cellValue[2].Url + " />";
+                    return html;
+                }
+            };
+        },
     },
     group: {
         groupId: function () { return { hidden: true, name: "GroupId" }; },
@@ -27,9 +33,11 @@ var colModels = {
             return {
                 name: "IsMember", label: "Is Member", width: 20,
                 formatter: function (cellValue, info, model, action) {
-                    var icon = "";
-                    icon = cellValue ? "fa-minus" : "fa-plus";
-                    return "<span class=\"toggle\"><i class='fa " + icon + "' data-next-icon=\"\"></i></span>";
+                    var trackId = $("#trackId").val();
+                    var cellConfig = cellValue ?
+                        { icon: "fa-minus fa-lg", action: "spotify.removeTrackFromGroup('" + info.rowId + "', " + model.GroupId + ", '" + trackId + "')" } :
+                        { icon: "fa-plus fa-lg", action: "spotify.addTrackToGroup('" + info.rowId + "', " + model.GroupId + ", '" + trackId + "')" };
+                    return "<span class=\"toggle\"><i class='fa " + cellConfig.icon + "' data-next-icon=\"\" onclick=\"" + cellConfig.action + "\"></i></span>";
                 }
             };
         }
@@ -41,6 +49,36 @@ var spotify = {
     },
     openGroup: function (groupId) {
         router.open("/Spotify/Groups", { groupId: groupId });
+    },
+    addTrackToGroup: function (rowId, groupId, trackId) {
+        $.ajax({
+            url: router.route("/Spotify/AddTrackToGroup"),
+            type: "POST",
+            data: {
+                groupId: groupId,
+                trackId: trackId
+            },
+            success: function (response) {
+                var $trackGroupsGrid = $("#trackGroupsGrid");
+                $trackGroupsGrid.jqGrid("getLocalRow", rowId).IsMember = true;
+                $trackGroupsGrid.trigger("reloadGrid");
+            }
+        });
+    },
+    removeTrackFromGroup: function (rowId, groupId, trackId) {
+        $.ajax({
+            url: router.route("/Spotify/RemoveTrackFromGroup"),
+            type: "POST",
+            data: {
+                groupId: groupId,
+                trackId: trackId
+            },
+            success: function (response) {
+                var $trackGroupsGrid = $("#trackGroupsGrid");
+                $trackGroupsGrid.jqGrid("getLocalRow", rowId).IsMember = false;
+                $trackGroupsGrid.trigger("reloadGrid");
+            }
+        });
     },
     loadCurrentlyPlaying: function () {
         $.ajax({
@@ -103,7 +141,8 @@ var spotify = {
                     url: router.route("/Spotify/CachedRecommendations"),
                     colModel: [
                         colModels.track.id(),
-                        colModels.track.name()
+                        colModels.track.name(),
+                        colModels.track.image()
                     ]
                 }));
                 helpers.grid.setGridWidthToParentWidth($recommendationsGrid);

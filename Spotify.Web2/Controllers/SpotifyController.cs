@@ -162,6 +162,26 @@ namespace Spotify.Web.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult AddTrackToGroup(int groupId, string trackId)
+        {
+            using (var db = _database.Open())
+            {
+                db.Insert(new DbRelationship { GroupId = groupId, TrackId = trackId });
+                return Ok();
+            }
+        }
+
+        [HttpPost]
+        public IActionResult RemoveTrackFromGroup(int groupId, string trackId)
+        {
+            using (var db = _database.Open())
+            {
+                db.Delete<DbRelationship>(r => r.GroupId == groupId && r.TrackId == trackId);
+                return Ok();
+            }
+        }
+
         public IActionResult CachedGroups()
         {
             var groups = _cache.Get<List<Group>>(_username, nameof(CachedGroups));

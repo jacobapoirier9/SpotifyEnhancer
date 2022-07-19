@@ -13,11 +13,20 @@ var colModels = {
     track: {
         id() { return { hidden: true, name: "Id" } as ColModelOptions },
         name() { return { name: "Name", label: "Track" } as ColModelOptions },
-        artists() {
+        image() {
             return {
-
+                name: "Album.Images", label: "Image",
+                formatter: (cellValue, info, model, action) => {
+                    var html = `<img src=${cellValue[2].Url} />`
+                    return html
+                }
             } as ColModelOptions
-        }
+        },
+        //artists() {
+        //    return {
+
+        //    } as ColModelOptions
+        //}
     },
     group: {
         groupId() { return { hidden: true, name: "GroupId" } as ColModelOptions },
@@ -32,9 +41,14 @@ var colModels = {
             return {
                 name: "IsMember", label: "Is Member", width: 20,
                 formatter: (cellValue, info, model, action) => {
-                    var icon = ""
-                    icon = cellValue ? "fa-minus" : "fa-plus"
-                    return `<span class="toggle"><i class='fa ${icon}' data-next-icon=""></i></span>`
+
+                    var trackId = $("#trackId").val()
+
+                    var cellConfig = cellValue ?
+                        { icon: "fa-minus fa-lg", action: `spotify.removeTrackFromGroup('${info.rowId}', ${model.GroupId}, '${trackId}')` } :
+                        { icon: "fa-plus fa-lg", action: `spotify.addTrackToGroup('${info.rowId}', ${model.GroupId}, '${trackId}')` }
+
+                    return `<span class="toggle"><i class='fa ${cellConfig.icon}' data-next-icon="" onclick="${cellConfig.action}"></i></span>`
                 }
             } as ColModelOptions
         }
@@ -48,6 +62,37 @@ var spotify = {
     },
     openGroup(groupId: string) {
         router.open("/Spotify/Groups", { groupId: groupId })
+    },
+
+    addTrackToGroup(rowId: number, groupId: number, trackId: string) {
+        $.ajax({
+            url: router.route("/Spotify/AddTrackToGroup"),
+            type: "POST",
+            data: {
+                groupId: groupId,
+                trackId: trackId
+            },
+            success: (response) => {
+                var $trackGroupsGrid = $("#trackGroupsGrid")
+                $trackGroupsGrid.jqGrid("getLocalRow", rowId).IsMember = true
+                $trackGroupsGrid.trigger("reloadGrid")
+            }
+        })
+    },
+    removeTrackFromGroup(rowId: number, groupId: number, trackId: string) {
+        $.ajax({
+            url: router.route("/Spotify/RemoveTrackFromGroup"),
+            type: "POST",
+            data: {
+                groupId: groupId,
+                trackId: trackId
+            },
+            success: (response) => {
+                var $trackGroupsGrid = $("#trackGroupsGrid")
+                $trackGroupsGrid.jqGrid("getLocalRow", rowId).IsMember = false
+                $trackGroupsGrid.trigger("reloadGrid")
+            }
+        })
     },
 
     loadCurrentlyPlaying() {
@@ -114,7 +159,8 @@ var spotify = {
                     url: router.route("/Spotify/CachedRecommendations"),
                     colModel: [
                         colModels.track.id(),
-                        colModels.track.name()
+                        colModels.track.name(),
+                        colModels.track.image()
                     ]
                 }))
 
