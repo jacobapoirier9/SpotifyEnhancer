@@ -89,6 +89,27 @@ namespace Spotify.Web.Controllers
 
                     _cache.Save(_username, nameof(CachedTracks), tracks);
 
+                    var audioFeatures = new List<AudioFeatures>();
+                    Helpers.ExecuteInChunks(tracks, 50, chucnk =>
+                    {
+                        var response = _spotify.Get(new GetAudioFeaturesMultiple { Ids = tracks.Select(t => t.Id).ToList() }).AudioFeatures;
+                        audioFeatures.AddRange(response);
+                    });
+
+                    var average = new AudioFeatures
+                    {
+                        Danceability = audioFeatures.Select(a => a.Danceability).Average(),
+                        Acousticness = audioFeatures.Select(a => a.Acousticness).Average(),
+                        Speechiness = audioFeatures.Select(a => a.Speechiness).Average(),
+                        Energy = audioFeatures.Select(a => a.Energy).Average(),
+                        Instrumentalness = audioFeatures.Select(a => a.Instrumentalness).Average(),
+                        Liveness = audioFeatures.Select(a => a.Liveness).Average(),
+                        Loudness = audioFeatures.Select(a => a.Loudness).Average(),
+                        Valence = audioFeatures.Select(a => a.Valence).Average()
+                    };
+
+                    _cache.Save(_username, nameof(CachedAudioFeatures), average);
+
                     return View("GroupSingle", group);
                 }
                 // 
@@ -198,6 +219,12 @@ namespace Spotify.Web.Controllers
         {
             var tracks = _cache.Get<List<Track>>(_username, nameof(CachedRecommendations));
             return Json(tracks);
+        }
+
+        public IActionResult CachedAudioFeatures()
+        {
+            var audioFeatures = _cache.Get<AudioFeatures>(_username, nameof(CachedRecommendations));
+            return Json(audioFeatures);
         }
 
         //[Ajax]
