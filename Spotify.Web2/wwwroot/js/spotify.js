@@ -1,8 +1,9 @@
 /// <reference path="../lib/jquery/dist/jquery.d.ts" />
 /// <reference path="../lib/jqgrid/jqGrid.d.ts" />
 var actions = {
-    track: {
-        display: function () {
+    groups: {
+        open: function (groupId) {
+            router.open("/Spotify/Groups", { groupId: groupId });
         }
     }
 };
@@ -38,6 +39,18 @@ var colModels = {
                         { icon: "fa-minus fa-lg", action: "spotify.removeTrackFromGroup('" + info.rowId + "', " + model.GroupId + ", '" + trackId + "')" } :
                         { icon: "fa-plus fa-lg", action: "spotify.addTrackToGroup('" + info.rowId + "', " + model.GroupId + ", '" + trackId + "')" };
                     return "<span class=\"toggle\"><i class='fa " + cellConfig.icon + "' data-next-icon=\"\" onclick=\"" + cellConfig.action + "\"></i></span>";
+                }
+            };
+        },
+        actions: function (options) {
+            return {
+                name: "Actions", width: 20,
+                formatter: function (cellValue, info, model, action) {
+                    var iconStrings = "";
+                    if (options.open) {
+                        iconStrings += "<i class='fa fa-info' title='Open' onclick='actions.groups.open(" + model.GroupId + ")'></i>";
+                    }
+                    return "<span>" + iconStrings + "</span>";
                 }
             };
         }
@@ -132,6 +145,7 @@ var spotify = {
                     colModel: [
                         colModels.group.groupId(),
                         colModels.group.itemId(),
+                        colModels.group.actions({ open: true }),
                         colModels.group.groupName(),
                         colModels.group.isMember()
                     ]
@@ -156,6 +170,7 @@ var spotify = {
                     colModel: [
                         colModels.group.groupId(),
                         colModels.group.itemId(),
+                        colModels.group.actions({ open: true }),
                         colModels.group.groupName(),
                         colModels.group.numberOfTracks()
                     ]

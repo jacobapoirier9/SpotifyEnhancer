@@ -2,9 +2,9 @@
 /// <reference path="../lib/jqgrid/jqGrid.d.ts" />
 
 var actions = {
-    track: {
-        display() {
-
+    groups: {
+        open(groupId) {
+            router.open("/Spotify/Groups", { groupId: groupId })
         }
     }
 }
@@ -22,11 +22,6 @@ var colModels = {
                 }
             } as ColModelOptions
         },
-        //artists() {
-        //    return {
-
-        //    } as ColModelOptions
-        //}
     },
     group: {
         groupId() { return { hidden: true, name: "GroupId" } as ColModelOptions },
@@ -49,6 +44,23 @@ var colModels = {
                         { icon: "fa-plus fa-lg", action: `spotify.addTrackToGroup('${info.rowId}', ${model.GroupId}, '${trackId}')` }
 
                     return `<span class="toggle"><i class='fa ${cellConfig.icon}' data-next-icon="" onclick="${cellConfig.action}"></i></span>`
+                }
+            } as ColModelOptions
+        },
+
+        actions(options: {
+            open?: boolean
+        }) {
+            return {
+                name: "Actions", width: 20,
+                formatter: (cellValue, info, model, action) => {
+                    var iconStrings = ""
+
+                    if (options.open) {
+                        iconStrings += `<i class='fa fa-info' title='Open' onclick='actions.groups.open(${model.GroupId})'></i>`
+                    }
+
+                    return "<span>" + iconStrings + "</span>"
                 }
             } as ColModelOptions
         }
@@ -149,6 +161,7 @@ var spotify = {
                     colModel: [
                         colModels.group.groupId(),
                         colModels.group.itemId(),
+                        colModels.group.actions({ open: true }),
                         colModels.group.groupName(),
                         colModels.group.isMember() 
                     ]
@@ -175,6 +188,7 @@ var spotify = {
                     colModel: [
                         colModels.group.groupId(),
                         colModels.group.itemId(),
+                        colModels.group.actions({ open: true }),
                         colModels.group.groupName(),
                         colModels.group.numberOfTracks()
                     ]
