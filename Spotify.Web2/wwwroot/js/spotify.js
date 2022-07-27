@@ -132,6 +132,7 @@ var spotify = {
                     url: router.route("/Spotify/CachedTracks"),
                     colModel: [
                         colModels.track.id(),
+                        colModels.track.image(),
                         colModels.track.name()
                     ]
                 }));
