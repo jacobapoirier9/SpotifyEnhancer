@@ -1,0 +1,90 @@
+/* CSS Document */
+.RedBoldText {
+    font-weight: bold;
+    color: #FF0000;
+    font-size: 13px;
+}
+.styleBlueLegend { 
+ 	font-family: Verdana; 
+	font-size: 14px; 
+	color: #0066FF; 
+ 	margin-bottom:5px; 
+}
+.styleCheckbox {
+	width:25px; 
+	height:25px; 
+	vertical-align:middle;
+}
+.styleSuccessMessage {
+    font-weight: bold;
+    color: #009900;
+    font-size: 13px;
+    font-family: Verdana;
+}
+.styleErrorMessage {
+    font-weight: bold;
+    color: #FF0000;
+    font-size: 13px;
+    font-family: Verdana;
+}
+.styleVerdanaLeft {
+	font-size: 13px; 
+	font-family: Verdana;
+	margin-left:15px;
+}
+.styleVerdana {
+	font-size: 13px; 
+	font-family: Verdana;
+}
+.styleVerdanaBold {
+	font-size: 13px; 
+	font-family: Verdana;
+	font-weight: bold;
+}
+.styleRadio {
+    transform: scale(1.8, 1.8);
+    display: inline-flex;
+    font-size: 8px;
+    margin-left: 100px;
+    padding-top: 10px;
+    font-family: Verdana;
+    padding-bottom: 10px;
+    vertical-align: middle !important;
+}
+.heavybar {
+	height:1px;
+	background-color:silver;
+}
+.noMarginBottom {
+	margin-bottom:0px !important;
+}
+.floatLeft {
+	float:left
+}
+.floatRight {
+	float:right
+}
+.tabInfo {
+	padding: 5px 7px !important;
+}
+.gridRowSelect {
+	background-color:#AFCEF8;
+}
+.centerControls {
+	text-align:center;
+}
+.marginBottom2 {
+	margin-bottom:2px;
+}
+.marginTop2 {
+	margin-top:2px;	
+}
+.noPaddingLeftRight {
+	padding-right: 0px !important;
+	padding-left: 0px !important;
+}
+/* this is used in the bootstrap modal button dialog so that it will appear as a warning*/
+
+.modal-footer {
+    text-align: center;
+}

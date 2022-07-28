@@ -22,40 +22,6 @@
                 <h3 class="box-title">Analysis</h3>
             </div>
             <div class="box-body">
-
-                @{ var audioFeatures = _cache.Get<AudioFeatures>(this.User.Claim<string>(Names.Username), nameof(SpotifyController.CachedAudioFeatures)); }
-
-                <label>@nameof(audioFeatures.Acousticness)</label>
-                <span>@audioFeatures.Acousticness</span>
-                <br />
-
-                <label>@nameof(audioFeatures.Danceability)</label>
-                <span>@audioFeatures.Danceability</span>
-                <br />
-
-                <label>@nameof(audioFeatures.Speechiness)</label>
-                <span>@audioFeatures.Speechiness</span>
-                <br />
-
-                <label>@nameof(audioFeatures.Energy)</label>
-                <span>@audioFeatures.Energy</span>
-                <br />
-
-                <label>@nameof(audioFeatures.Instrumentalness)</label>
-                <span>@audioFeatures.Instrumentalness</span>
-                <br />
-
-                <label>@nameof(audioFeatures.Liveness)</label>
-                <span>@audioFeatures.Liveness</span>
-                <br />
-
-                <label>@nameof(audioFeatures.Loudness)</label>
-                <span>@audioFeatures.Loudness</span>
-                <br />
-
-                <label>@nameof(audioFeatures.Valence)</label>
-                <span>@audioFeatures.Valence</span>
-                <br />
             </div>
         </div>
     </div>

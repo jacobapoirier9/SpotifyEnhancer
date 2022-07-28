@@ -91,43 +91,6 @@ namespace Spotify.Web
                     options.JsonSerializerOptions.Converters.Add(new ItemTypeJsonConverter());
                 });
 
-            services.AddWebOptimizer(pipeline =>
-            {
-                pipeline.AddCssBundle("/css/bundles.css", new string[]
-                {
-                    "/css/bootstrap.min.css",
-                    "/css/bootstrap-select.css",
-                    "/css/bootstrap-datepicker3.min.css",
-                    "/css/font-awesome.min.css",
-                    "/css/icheck/blue.css",
-                    "/css/AdminLTE.css",
-                    "/css/skins/skin-blue.css",
-                    "/lib/jqgrid/ui.jqgrid-bootstrap.css",
-                    "/css/site.css"
-                });
-                pipeline.AddJavaScriptBundle("/js/bundles.js", new string[]
-                {
-                    "/lib/jquery/dist/jquery-3.3.1.js",
-                    "/lib/bootstrap/dist/bootstrap.min.js",
-                    "/lib/bootstrap-select/dist/bootstrap-select.js",
-                    "/lib/fastclick/dist/fastclick.js",
-                    "/lib/slimscroll/dist/jquery.slimscroll.js",
-                    "/lib/moment/dist/moment.js",
-                    "/lib/datepicker/dist/bootstrap-datepicker.js",
-                    "/lib/icheck/dist/icheck.js",
-                    "/lib/validator/dist/validator.js",
-                    "/lib/inputmask/dist/jquery.inputmask.bundle.js",
-                    "/lib/jqgrid/grid.locale-en.js",
-                    "/lib/jqgrid/jquery.jqGrid.js",
-                    "/js/adminlte.js",
-                    "/js/init.js",
-                    "/js/config.js",
-                    "/js/router.js",
-                    "/js/helpers.js",
-                    "/js/spotify.js"
-                });
-            });
-
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
@@ -218,7 +181,6 @@ namespace Spotify.Web
                 app.UseExceptionHandler("/Error");
             }
 
-            app.UseWebOptimizer();
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
