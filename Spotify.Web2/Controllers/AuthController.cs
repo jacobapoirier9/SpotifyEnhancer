@@ -57,7 +57,7 @@ namespace Spotify.Web.Controllers
                 HttpContext.SignInAsync(claimsPrincipal);
 
                 _logger.Debug("Spotify user signed in is {Username}", user.DisplayName);
-                return RedirectToAction("Index", "Spotify");
+                return RedirectToAction("Index", "Home");
             }
         }
     }
