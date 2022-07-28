@@ -63,5 +63,40 @@ namespace Spotify.Web
             var list = new List<T>() { item };
             return list;
         }
+
+        /// <summary>
+        /// Generate a random list of items from an existing list of items
+        /// </summary>
+        public static List<T> GetRandom<T>(this IEnumerable<T> items, int numberOfItems)
+        {
+            var toReturn = new List<T>(numberOfItems);
+            var indexes = new List<int>(numberOfItems);
+
+            var i = 0;
+            var min = 0;
+            var max = items.Count() - 1;
+            var rand = new Random();
+
+            while (i < numberOfItems)
+            {
+                var current = rand.Next(min, max);
+                if (!indexes.Contains(current))
+                {
+                    indexes.Add(current);
+                    toReturn.Add(items.ElementAt(current));
+                    i++;
+                }
+            }
+
+            return toReturn.ToList();
+        }
+
+        /// <summary>
+        /// Gets a random element from a list
+        /// </summary>
+        public static T GetRandom<T>(this IEnumerable<T> items)
+        {
+            return items.GetRandom(1).First();
+        }
     }
 }

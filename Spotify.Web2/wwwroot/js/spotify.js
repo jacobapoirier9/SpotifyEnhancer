@@ -5,6 +5,11 @@ var actions = {
         open: function (groupId) {
             router.open("/Spotify/Groups", { groupId: groupId });
         }
+    },
+    tracks: {
+        open: function (trackId) {
+            router.open("/Spotify/Track", { trackId: trackId });
+        }
     }
 };
 var colModels = {
@@ -20,6 +25,18 @@ var colModels = {
                 }
             };
         },
+        actions: function (options) {
+            return {
+                label: "Actions", width: 20,
+                formatter: function (cellValue, info, model, action) {
+                    var iconStrings = "";
+                    if (options.open) {
+                        iconStrings += "<i class='fa fa-info fa-2x' title='Open' onclick='actions.tracks.open(\"" + model.Id + "\")'></i>";
+                    }
+                    return "<span>" + iconStrings + "</span>";
+                }
+            };
+        }
     },
     group: {
         groupId: function () { return { hidden: true, name: "GroupId" }; },
@@ -48,7 +65,7 @@ var colModels = {
                 formatter: function (cellValue, info, model, action) {
                     var iconStrings = "";
                     if (options.open) {
-                        iconStrings += "<i class='fa fa-info' title='Open' onclick='actions.groups.open(" + model.GroupId + ")'></i>";
+                        iconStrings += "<i class='fa fa-info fa-2x' title='Open' onclick='actions.groups.open(" + model.GroupId + ")'></i>";
                     }
                     return "<span>" + iconStrings + "</span>";
                 }
@@ -132,6 +149,7 @@ var spotify = {
                     url: router.route("/Spotify/CachedTracks"),
                     colModel: [
                         colModels.track.id(),
+                        colModels.track.actions({ open: true }),
                         colModels.track.image(),
                         colModels.track.name()
                     ]
@@ -156,6 +174,7 @@ var spotify = {
                     url: router.route("/Spotify/CachedRecommendations"),
                     colModel: [
                         colModels.track.id(),
+                        colModels.track.actions({ open: true }),
                         colModels.track.name(),
                         colModels.track.image()
                     ]

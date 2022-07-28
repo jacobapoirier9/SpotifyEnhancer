@@ -89,12 +89,14 @@ namespace Spotify.Web.Controllers
 
                     _cache.Save(_username, nameof(CachedTracks), tracks);
 
-                    var audioFeatures = new List<AudioFeatures>();
-                    Helpers.ExecuteInChunks(tracks, 50, chucnk =>
-                    {
-                        var response = _spotify.Get(new GetAudioFeaturesMultiple { Ids = tracks.Select(t => t.Id).ToList() }).AudioFeatures;
-                        audioFeatures.AddRange(response);
-                    });
+                    //var audioFeatures = new List<AudioFeatures>();
+                    //Helpers.ExecuteInChunks(tracks, 50, chucnk =>
+                    //{
+                    //    var response = _spotify.Get(new GetAudioFeaturesMultiple { Ids = tracks.Select(t => t.Id).ToList() }).AudioFeatures;
+                    //    audioFeatures.AddRange(response);
+                    //}); 
+                    // Save the workload on spotifies api
+                    var audioFeatures = _spotify.Get(new GetAudioFeaturesMultiple { Ids = tracks.GetRandom(5).Select(t => t.Id).ToList() }).AudioFeatures;
 
                     var average = new AudioFeatures
                     {
