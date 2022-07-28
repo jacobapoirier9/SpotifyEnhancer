@@ -1,24 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ServiceStack;
+using Spotify.Library.Core;
 
 namespace Spotify.Web.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IServiceClient _spotify;
+        public HomeController(IServiceClient spotify)
         {
-            _logger = logger;
+            _spotify = spotify;
+        }
+
+
+        private void SetupApi() => SetupApi(out _);
+        private void SetupApi(out string username)
+        {
+            username = this.Claim<string>(Names.Username);
+            var token = this.Claim<string>(Names.AccessToken);
+
+            _spotify.BearerToken = token;
         }
 
         public IActionResult Index()
         {
-            return View();
+            SetupApi();
+
+            var playlists = _spotify.GetAll(new GetPlaylists(), response => response);
+            return View(playlists);
         }
     }
 }
