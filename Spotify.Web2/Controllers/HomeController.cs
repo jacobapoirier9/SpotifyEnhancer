@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using ServiceStack;
 using Spotify.Library.Core;
+using Spotify.Web.Services;
+using System;
+using System.Collections.Generic;
 
 namespace Spotify.Web.Controllers
 {
@@ -9,9 +12,11 @@ namespace Spotify.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IServiceClient _spotify;
-        public HomeController(IServiceClient spotify)
+        private readonly ICustomCache _cache;
+        public HomeController(IServiceClient spotify, ICustomCache cache)
         {
             _spotify = spotify;
+            _cache = cache;
         }
 
 
@@ -28,8 +33,29 @@ namespace Spotify.Web.Controllers
         {
             SetupApi();
 
-            var playlists = _spotify.GetAll(new GetPlaylists(), response => response);
+            var playlists = _cache.Get(this.Claim<string>(Names.Username), "Playlists", () =>
+            {
+                return _spotify.GetAll(new GetPlaylists(), response => response);
+            });
+            //var playlists = _spotify.GetAll(new GetPlaylists(), response => response);
             return View(playlists);
+        }
+    }
+
+    public static class CacheExtensions
+    {
+        public static T Get<T>(this ICustomCache cache, string username, string key, Func<T> func)
+        {
+            if (cache.HasKey(username, key))
+            {
+                return cache.Get<T>(username, key);
+            }
+            else
+            {
+                var response = func.Invoke();
+                cache.Save(username, key, response);
+                return response;
+            }
         }
     }
 }
