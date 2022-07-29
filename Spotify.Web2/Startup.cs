@@ -118,7 +118,6 @@ namespace Spotify.Web
             services.AddSingleton<ICustomCache, CustomFileSystemCache>();
             services.AddSingleton<ISpotifyTokenService, SpotifyTokenService>();
 
-
             JsConfig.TextCase = TextCase.SnakeCase;
             services.AddSingleton<IServiceClient>(new JsonServiceClient
             {

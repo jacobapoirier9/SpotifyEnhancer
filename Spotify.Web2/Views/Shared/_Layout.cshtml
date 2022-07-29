@@ -8,8 +8,28 @@
     <title>Generic - Hyperspace by HTML5 UP</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" asp-href-include="~/assets/css/main.css" />
-    <noscript><link rel="stylesheet" asp-href-include="~/assets/css/noscript.css" /></noscript>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="~/assets/css/main.css" />
+    <link rel="stylesheet" href="~/assets/css/ui.jqgrid-bootstrap.css" />
+    <noscript><link rel="stylesheet" href="~/assets/css/noscript.css" /></noscript>
+
+
+    <!-- Scripts -->
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/jquery.scrollex.min.js"></script>
+    <script src="~/assets/js/jquery.scrolly.min.js"></script>
+    <script src="~/assets/js/browser.min.js"></script>
+    <script src="~/assets/js/breakpoints.min.js"></script>
+    <script src="~/assets/js/util.js"></script>
+    <script src="~/assets/js/main.js"></script>
+    <script src="~/assets/js/grid.locale-en.js"></script>
+    <script src="~/assets/js/jquery.jqGrid.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/router.js"></script>
+    <script src="~/assets/js/helpers.js"></script>
+    <script src="~/assets/js/spotify.js"></script>
+
 </head>
 <body class="is-preload">
 
@@ -39,6 +59,7 @@
             </div>
         </section>
 
+        @await RenderSectionAsync("Scripts", required: false)
     </div>
 
     <!-- Footer -->
@@ -51,14 +72,6 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script asp-src-include="~/assets/js/jquery.min.js"></script>
-    <script asp-src-include="~/assets/js/jquery.scrollex.min.js"></script>
-    <script asp-src-include="~/assets/js/jquery.scrolly.min.js"></script>
-    <script asp-src-include="~/assets/js/browser.min.js"></script>
-    <script asp-src-include="~/assets/js/breakpoints.min.js"></script>
-    <script asp-src-include="~/assets/js/util.js"></script>
-    <script asp-src-include="~/assets/js/main.js"></script>
 
 </body>
 </html>

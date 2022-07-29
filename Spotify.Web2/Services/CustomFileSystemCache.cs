@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using ServiceStack;
 using Spotify.Library;
 using System;
@@ -9,12 +10,14 @@ namespace Spotify.Web.Services
 {
     public class CustomFileSystemCache : ICustomCache
     {
-        private string _directoryPath;
-        private TimeSpan _expiresAfter;
-        public CustomFileSystemCache(IConfiguration config)
+        private readonly string _directoryPath;
+        private readonly TimeSpan _expiresAfter;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public CustomFileSystemCache(IConfiguration config, IHttpContextAccessor httpContextAccessor)
         {
             _directoryPath = config.Get<string>("Cache:Directory");
             _expiresAfter = TimeSpan.Parse(config.Get<string>("Cache:ExpiresAfter"));
+            _httpContextAccessor = httpContextAccessor;
         }
 
 

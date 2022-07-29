@@ -1,1 +1,30 @@
-﻿<h1>Playlists</h1>
+﻿@model List<Playlist>
+
+<section>
+
+    <h1>Playlists</h1>
+
+    <div class="table-wrapper">
+
+        <!-- Convert to JQGrid -->
+        <table id="table"></table>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Playlist</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var playlist in Model)
+                {
+                    <tr onclick="spotify.page.playlist.open('@playlist.Id')">
+                        <td><img src="@playlist.Images.First().Url" width="50" height="50" /></td>
+                        <td>@playlist.Name</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

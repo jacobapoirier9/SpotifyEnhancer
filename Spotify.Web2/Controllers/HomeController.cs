@@ -29,26 +29,22 @@ namespace Spotify.Web.Controllers
             _spotify.BearerToken = token;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-    }
+        public IActionResult Index() => PlaylistMultiple();
 
-    public static class CacheExtensions
-    {
-        public static T Get<T>(this ICustomCache cache, string username, string key, Func<T> func)
+        public IActionResult PlaylistMultiple()
         {
-            if (cache.HasKey(username, key))
-            {
-                return cache.Get<T>(username, key);
-            }
-            else
-            {
-                var response = func.Invoke();
-                cache.Save(username, key, response);
-                return response;
-            }
+            SetupApi();
+
+            var playlists = _spotify.GetAll(new GetPlaylists { Limit = 50 }, response => response);
+            return View(playlists);
+        }
+
+        public IActionResult PlaylistSingle(string playlistId)
+        {
+            SetupApi();
+
+            var tracks = _spotify.GetAll(new GetPlaylistItems { PlaylistId = playlistId }, response => response);
+            return Json(tracks);
         }
     }
 }

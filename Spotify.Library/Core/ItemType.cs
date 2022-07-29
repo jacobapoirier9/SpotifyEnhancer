@@ -4,6 +4,7 @@
     {
         Track = 1,
         Album = 2,
-        Artist = 3
+        Artist = 3,
+        Playlist = 4
     }
 }

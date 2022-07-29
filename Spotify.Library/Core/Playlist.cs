@@ -11,6 +11,14 @@ namespace Spotify.Library.Core
         public short Offset { get; set; }
     }
 
+    [Route("/playlists/{PlaylistId}/tracks")]
+    public class GetPlaylistItems : IReturnPagable<PagableResponse<SingleTrackWrapper>>, IGet
+    {
+        public string PlaylistId { get; set; }
+        public short Limit { get; set; }
+        public short Offset { get; set; }
+    }
+
     public class Playlist : SpotifyObject
     {
         public bool Collaborative { get; set; }

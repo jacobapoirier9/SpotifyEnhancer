@@ -21,6 +21,7 @@ namespace Spotify.Web
                 ItemType.Track => nameof(ItemType.Track),
                 ItemType.Album => nameof(ItemType.Album),
                 ItemType.Artist => nameof(ItemType.Artist),
+                ItemType.Playlist => nameof(ItemType.Playlist),
 
                 _ => throw new IndexOutOfRangeException(nameof(ItemType))
             };
