@@ -1,41 +1,64 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE HTML>
+<!--
+    Hyperspace by HTML5 UP
+    Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
 <head>
+    <title>Generic - Hyperspace by HTML5 UP</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Spotify Enhancer</title>
-
-    <link rel="stylesheet" href="~/mobile/css/bootstrap/bootstrap.css" />
-    <link rel="stylesheet" href="~/mobile/css/bootstrap/bootstrap-dialog.css" />
-    <link rel="stylesheet" href="~/mobile/css/site.css" />
-    @*<link rel="stylesheet" href="~/mobile/css/bootstrap-checkbox.css" />*@
-
-    <script src="/mobile/js/modernizr/modernizr-2.8.3.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" asp-href-include="~/assets/css/main.css" />
+    <noscript><link rel="stylesheet" asp-href-include="~/assets/css/noscript.css" /></noscript>
 </head>
-<body style="background: linear-gradient(#e66465, #9198e5) no-repeat fixed; background-attachment: fixed; position: absolute;">
+<body class="is-preload">
 
-    <style>
-    </style>
-    <script src="~/mobile/js/jquery/jquery-3.5.0.min.js"></script>
-    <script src="~/mobile/js/bootstrap/bootstrap.min.js"></script>
-    <script src="~/mobile/js/bootstrap/validator.min.js"></script>
-    <script src="~/mobile/js/bootstrap/bootstrap-dialog.js"></script>
-    <script src="~/mobile/js/site.js"></script>
+    <!-- Header -->
+    <header id="header">
+        <a href="~/index.html" class="title">Hyperspace</a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="generic.html" class="active">Generic</a></li>
+                <li><a href="elements.html">Elements</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <div class="container body-content" style="overflow-y: hidden;">
-        <div class="col-md-4"> </div>
-        <div class="col-md-4 row">
-            <!-- There is a bug where the background images stretches across the entire list.
-                This only happens when looking at it through my phone.-->
-            <div class="panel" style="background-color: transparent; border: none;">
-                @*<div class="panel-heading" style="text-align:center; width: 100%; height: 100%;">Spotify</div>*@
-                <div class="panel-body" style="max-height: 75%;">
-                    @RenderBody()
-                </div>
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Main -->
+        <section id="main" class="wrapper">
+            <div class="inner">
+                @RenderBody()
+                @*<h1 class="major">A Generic Page</h1>
+                <span class="image fit"><img src="images/pic04.jpg" alt="" /></span>
+                <p>Donec eget ex magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum sit amet, fergiat. Pellentesque in mi eu massa lacinia malesuada et a elit. Donec urna ex, lacinia in purus ac, pretium pulvinar mauris. Curabitur sapien risus, commodo eget turpis at, elementum convallis elit. Pellentesque enim turpis, hendrerit tristique.</p>
+                <p>Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum sit amet, fersapien risus, commodo eget turpis at, elementum convallis elit. Pellentesque enim turpis, hendrerit tristique lorem ipsum dolor.</p>*@
             </div>
-        </div>
-        <div class="col-md-4"> </div>
+        </section>
+
     </div>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Footer -->
+    <footer id="footer" class="wrapper alt">
+        <div class="inner">
+            <ul class="menu">
+                <li>&copy; Untitled. All rights reserved.</li>
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script asp-src-include="~/assets/js/jquery.min.js"></script>
+    <script asp-src-include="~/assets/js/jquery.scrollex.min.js"></script>
+    <script asp-src-include="~/assets/js/jquery.scrolly.min.js"></script>
+    <script asp-src-include="~/assets/js/browser.min.js"></script>
+    <script asp-src-include="~/assets/js/breakpoints.min.js"></script>
+    <script asp-src-include="~/assets/js/util.js"></script>
+    <script asp-src-include="~/assets/js/main.js"></script>
+
 </body>
 </html>

@@ -31,14 +31,7 @@ namespace Spotify.Web.Controllers
 
         public IActionResult Index()
         {
-            SetupApi();
-
-            var playlists = _cache.Get(this.Claim<string>(Names.Username), "Playlists", () =>
-            {
-                return _spotify.GetAll(new GetPlaylists(), response => response);
-            });
-            //var playlists = _spotify.GetAll(new GetPlaylists(), response => response);
-            return View(playlists);
+            return View();
         }
     }
 

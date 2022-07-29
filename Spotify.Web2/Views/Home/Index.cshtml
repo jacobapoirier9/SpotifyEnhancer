@@ -1,16 +1,1 @@
-﻿@model List<Playlist>
-
-<div>
-    @foreach (var playlist in Model)
-    {
-        <div class="row" style="display: inline-flex;">
-            <div>
-                <img src="@playlist.Images.Last().Url" width="50" height="50" />
-            </div>
-            <div style="text-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;">
-                <h4 style="padding-left: 5px;">@playlist.Name</h4>
-            </div>
-        </div>
-        <br />
-    }
-</div>
+﻿<h1>Playlists</h1>

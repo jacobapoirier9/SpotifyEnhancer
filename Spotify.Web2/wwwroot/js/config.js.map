@@ -1,1 +1,0 @@
-{"version":3,"file":"config.js","sourceRoot":"","sources":["../ts/config.ts"],"names":[],"mappings":"AAAA,IAAI,MAAM,GAAG;IACT,4BAA4B,EAAE,KAAM;CACvC,CAAA","sourcesContent":["var config = {\r\n    loadCurrentlyPlayingInterval: 60_000\r\n}"]}
